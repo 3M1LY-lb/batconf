@@ -1,10 +1,13 @@
 from batconf.source import SourceInterface
-from batconf.sources._compat import deprecated_module
+from batconf.sources._compat import (
+    deprecated_module,
+    make_deprecated_getattr,
+)
 
 from argparse import Namespace
 
 
-class NamespaceConfig(SourceInterface):
+class NamespaceSource(SourceInterface):
     """A configuration source
     that retrieves values from an argparse.Namespace object.
 
@@ -18,7 +21,7 @@ class NamespaceConfig(SourceInterface):
     >>> parser = argparse.ArgumentParser()
     >>> parser.add_argument('--host', dest='root.host', default='localhost')
     >>> args = parser.parse_args()
-    >>> config = NamespaceConfig(args)
+    >>> config = NamespaceSource(args)
     >>> config.get('root.host')
     'localhost'
     """
@@ -41,3 +44,10 @@ class NamespaceConfig(SourceInterface):
 
     def __repr__(self):
         return f'{self.__class__.__name__}(namespace={self._data})'
+
+
+__getattr__ = make_deprecated_getattr(
+    deprecated={'NamespaceConfig': 'NamespaceSource'},
+    module_globals=globals(),
+    module_name=__name__,
+)

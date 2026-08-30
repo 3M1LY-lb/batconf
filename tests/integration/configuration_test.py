@@ -6,7 +6,7 @@ from os import path
 
 from batconf.manager import Configuration, SourceList
 from batconf.sources.ini import IniConfig
-from batconf.sources.env import EnvConfig
+from batconf.sources.env import EnvSource
 
 
 # === Configuration Schema === #
@@ -232,7 +232,7 @@ class FreeFormConfigTreeTests(TestCase):
         """REF: github #2
         """
         cfg = Configuration(
-            source_list=SourceList([EnvConfig()]),
+            source_list=SourceList([EnvSource()]),
             config_class=RootConfigSchema,
             path='root',
         )

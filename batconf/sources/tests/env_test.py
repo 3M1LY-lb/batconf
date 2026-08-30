@@ -1,13 +1,13 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from ..env import EnvConfig
+from ..env import EnvSource
 
 
 SRC = 'batconf.sources.env'
 
 
-class TestEnvConfig(TestCase):
+class TestEnvSource(TestCase):
     @patch.dict(
         f'{SRC}.os.environ',
         {
@@ -17,7 +17,7 @@ class TestEnvConfig(TestCase):
         },
     )
     def test_get(t):
-        conf = EnvConfig()
+        conf = EnvSource()
 
         with t.subTest('single key'):
             t.assertEqual(conf.get('config_file'), 'example.config.yaml')
@@ -34,7 +34,7 @@ class TestEnvConfig(TestCase):
             )
 
     def test_env_name(t):
-        conf = EnvConfig()
+        conf = EnvSource()
 
         with t.subTest('single key'):
             t.assertEqual(conf.env_name('key'), 'BAT_KEY')
@@ -54,9 +54,9 @@ class TestEnvConfig(TestCase):
             )
 
     def test___str__(t) -> None:
-        source = EnvConfig()
+        source = EnvSource()
         t.assertEqual(f'Environment Variables: {repr(source)}', str(source))
 
     def test___repr__(t) -> None:
-        source = EnvConfig()
-        t.assertEqual('EnvConfig()', repr(source))
+        source = EnvSource()
+        t.assertEqual('EnvSource()', repr(source))
