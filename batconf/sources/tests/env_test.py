@@ -39,22 +39,20 @@ class TestEnvSource(TestCase):
         with t.subTest('the prefix leads a dotted key'):
             t.assertEqual(t.es.env_name('path.to.key'), 'MYTOOL_PATH_TO_KEY')
 
-        with t.subTest('the prefix leads the module path'):
+        with t.subTest('the prefix leads the path'):
             t.assertEqual(
-                t.es.env_name('key', module='module'), 'MYTOOL_MODULE_KEY'
+                t.es.env_name('key', path='module'), 'MYTOOL_MODULE_KEY'
             )
 
-        with t.subTest('module and key paths'):
+        with t.subTest('path and key paths'):
             t.assertEqual(
-                t.es.env_name('to.key', module='module.path'),
+                t.es.env_name('to.key', path='module.path'),
                 'MYTOOL_MODULE_PATH_TO_KEY',
             )
 
         with t.subTest('prefix=None declares no namespace'):
             source = EnvSource(prefix=None)
-            t.assertEqual(
-                source.env_name('key', module='server'), 'SERVER_KEY'
-            )
+            t.assertEqual(source.env_name('key', path='server'), 'SERVER_KEY')
             t.assertEqual(source.env_name('key'), 'KEY')
 
     def test___str__(t) -> None:
@@ -84,11 +82,9 @@ class BatPrefixDeprecationTests(TestCase):
                 stacklevel=4,
             )
 
-        with t.subTest('a module path resolves unprefixed, and does not warn'):
+        with t.subTest('a path resolves unprefixed, and does not warn'):
             t.warnings.reset_mock()
-            t.assertEqual(
-                'SERVER_HOST', t.es.env_name('host', module='server')
-            )
+            t.assertEqual('SERVER_HOST', t.es.env_name('host', path='server'))
             t.warnings.warn.assert_not_called()
 
     def test__BAT_PREFIX_DEPRECATION(t):

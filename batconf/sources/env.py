@@ -2,7 +2,6 @@ import os
 import warnings
 
 from .types import SourceInterfaceP
-from ._compat import deprecated_module
 
 
 _BAT_PREFIX_DEPRECATION = (
@@ -46,19 +45,13 @@ class EnvSource(SourceInterfaceP):
     def __init__(self, prefix: str | None | _UnsetPrefix = _UNSET) -> None:
         self._prefix = prefix
 
-    def get(
-        self,
-        key: str,
-        path: str | None = None,
-        module: str | None = None,
-    ) -> str | None:
-        path = deprecated_module(path, module)
+    def get(self, key: str, path: str | None = None) -> str | None:
         return os.getenv(self.env_name(key, path))
 
-    def env_name(self, key: str, module: str | None = None) -> str:
+    def env_name(self, key: str, path: str | None = None) -> str:
         parts = (
-            self._prefix_parts(module)
-            + (module.split('.') if module else [])
+            self._prefix_parts(path)
+            + (path.split('.') if path else [])
             + key.split('.')
         )
         return '_'.join(parts).upper()
