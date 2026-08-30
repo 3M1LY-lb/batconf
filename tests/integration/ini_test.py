@@ -1,26 +1,15 @@
-import warnings
-
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
 from os import path
 
-import warnings as _warnings_module
-with _warnings_module.catch_warnings():
-    _warnings_module.simplefilter('ignore', DeprecationWarning)
-    from batconf.sources.ini import IniConfig
-from batconf.sources.ini import IniSource
+from batconf.sources.ini import _IniConfig, IniSource
 from batconf.types import FILE_FORMATS
 
 
 class IniConfigIntegrationTests(TestCase):
     def setUp(t):
         t.this_dir = path.dirname(path.realpath(__file__))
-
-        w = warnings.catch_warnings()
-        w.__enter__()
-        warnings.simplefilter('ignore', DeprecationWarning)
-        t.addCleanup(w.__exit__, None, None, None)
 
     def test_is_deprecated(t):
         import batconf.sources.ini as ini_module
@@ -35,7 +24,7 @@ class IniConfigIntegrationTests(TestCase):
     def test_ini_file_source_defaults(t):
         """Test the Default behavior of the IniConfig configuration source"""
         t.config_file_path = path.join(t.this_dir, 'data/envs.config.ini')
-        ic = IniConfig(file_path=t.config_file_path)
+        ic = _IniConfig(file_path=t.config_file_path)
 
         # selects default environment from the config file
         # get a value from the root of the default environment
@@ -53,7 +42,7 @@ class IniConfigIntegrationTests(TestCase):
         all sections of the file are available.
         """
         t.config_file_path = path.join(t.this_dir, 'data/sections.config.ini')
-        ic = IniConfig(file_path=t.config_file_path, file_format='sections')
+        ic = _IniConfig(file_path=t.config_file_path, file_format='sections')
 
         # Sections allow values to be nested by their path
         t.assertEqual(
@@ -67,7 +56,7 @@ class IniConfigIntegrationTests(TestCase):
 
     def test_flat_file(t):
         t.config_file_path = path.join(t.this_dir, 'data/flat.config.ini')
-        ic = IniConfig(file_path=t.config_file_path, file_format='flat')
+        ic = _IniConfig(file_path=t.config_file_path, file_format='flat')
 
         # all keys are root values
         t.assertEqual('value 0', ic.get('value0'))
@@ -86,17 +75,12 @@ class IniConfigMissingFileTests(TestCase):
     def setUp(t):
         t.filename = 'sir.not.appearing.in.this.film'
 
-        w = warnings.catch_warnings()
-        w.__enter__()
-        warnings.simplefilter('ignore', DeprecationWarning)
-        t.addCleanup(w.__exit__, None, None, None)
-
     def test_warning_default(t):
         # The same behavior applies to all file formats
         for file_format in FILE_FORMATS:
             with t.subTest(file_format=file_format):
                 with patch('batconf.sources.file.log') as log:
-                    ic = IniConfig(
+                    ic = _IniConfig(
                         file_path=t.filename,
                         file_format=file_format,
                         # missing_file_option='warning', is the default value
@@ -116,7 +100,7 @@ class IniConfigMissingFileTests(TestCase):
         for file_format in FILE_FORMATS:
             with t.subTest(file_format=file_format):
                 with t.assertRaises(FileNotFoundError):
-                    ic = IniConfig(
+                    ic = _IniConfig(
                         file_path=t.filename,
                         missing_file_option='error',
                         file_format=file_format,
@@ -129,7 +113,7 @@ class IniConfigMissingFileTests(TestCase):
         """
         for file_format in FILE_FORMATS:
             with t.subTest(file_format=file_format):
-                ic = IniConfig(
+                ic = _IniConfig(
                     file_path=t.filename,
                     missing_file_option='ignore',
                     file_format=file_format,

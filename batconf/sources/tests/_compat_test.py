@@ -57,7 +57,7 @@ class MakeDeprecatedGetAttrTests(TestCase):
         )
 
     def test_returns_new_class(t):
-        with warnings.catch_warnings(record=True):
+        with t.assertWarns(DeprecationWarning):
             result = t.dga('OldName')
         t.assertIs(result, sentinel.NewClass)
 

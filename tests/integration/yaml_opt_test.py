@@ -1,10 +1,9 @@
-import warnings
 from unittest import TestCase, skipIf
 from unittest.mock import patch
 
 from os import path
 
-from batconf.sources.yaml import YamlConfig
+from batconf.sources.yaml import _YamlConfig
 from batconf.sources.tests.yaml_test import (
     EXAMPLE_CONFIG_DICT,
     EXAMPLE_CONFIG_YAML,
@@ -42,15 +41,11 @@ class SourcesYamlUnittestStaticValuesTests(TestCase):
 class YamlFileIntegrationTests(TestCase):
     def setUp(t):
         t.this_dir = path.dirname(path.realpath(__file__))
-        w = warnings.catch_warnings()
-        w.__enter__()
-        warnings.simplefilter('ignore', DeprecationWarning)
-        t.addCleanup(w.__exit__, None, None, None)
 
     def test_yaml_file_source_defaults(t):
         # Get the OS-agnostic absolute path to the test config.yaml file
         yml_config_file_name = path.join(t.this_dir, 'data', 'config.yaml')
-        yc = YamlConfig(config_file_name=yml_config_file_name)
+        yc = _YamlConfig(config_file_name=yml_config_file_name)
 
         t.assertEqual(
             'Config.yaml: test.project.submodule.sub.key1',
@@ -64,15 +59,11 @@ class YamlConfigMissingFileTests(TestCase):
 
     def setUp(t):
         t.filename = 'sir.not.appearing.in.this.film'
-        w = warnings.catch_warnings()
-        w.__enter__()
-        warnings.simplefilter('ignore', DeprecationWarning)
-        t.addCleanup(w.__exit__, None, None, None)
 
     def test_warning_default(t):
         # The same behavior applies to all file formats
         with patch('batconf.sources.yaml.log') as log:
-            yc = YamlConfig(
+            yc = _YamlConfig(
                 config_file_name=t.filename,
                 # missing_file_option='warning', is the default value
             )
@@ -87,7 +78,7 @@ class YamlConfigMissingFileTests(TestCase):
         attempting to load a missing file will raise a FileNotFoundError
         """
         with t.assertRaises(FileNotFoundError):
-            _ = YamlConfig(
+            _ = _YamlConfig(
                 config_file_name=t.filename,
                 missing_file_option='error',
             )
@@ -96,7 +87,7 @@ class YamlConfigMissingFileTests(TestCase):
         """when missing_file_option='ignore'
         attempting to load a missing file will not raise an error
         """
-        yc = YamlConfig(
+        yc = _YamlConfig(
             config_file_name=t.filename,
             missing_file_option='ignore',
         )
@@ -105,3 +96,21 @@ class YamlConfigMissingFileTests(TestCase):
         t.assertIsNone(yc.get('doc'))
         t.assertIsNone(yc.get('project.submodule.sub.key1'))
         t.assertIsNone(yc.get('any.random.key'))
+
+
+class YamlConfigDeprecationTests(TestCase):
+    """YamlConfig is the pre-0.4 YAML source, kept for one more release."""
+
+    def test___getattr__(t):
+        import batconf.sources.yaml as yaml_module
+        with t.subTest('warns and names the replacement'):
+            with t.assertWarns(DeprecationWarning) as cm:
+                alias = yaml_module.__getattr__('YamlConfig')
+            t.assertEqual(
+                "'YamlConfig' is deprecated and will be removed in v0.5.0; "
+                "use 'YamlSource' instead.",
+                str(cm.warning),
+            )
+
+        with t.subTest('resolves to the legacy class'):
+            t.assertIs(alias, yaml_module._YamlConfig)

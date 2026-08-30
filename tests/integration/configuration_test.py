@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from os import path
 
 from batconf.manager import Configuration, SourceList
-from batconf.sources.ini import IniConfig
+from batconf.sources.ini import _IniConfig
 from batconf.sources.env import EnvSource
 
 
@@ -83,7 +83,7 @@ class FreeFormConfigTreeTests(TestCase):
     def test_environments_config(t) -> None:
         config_file_name = path.join(t.this_dir, 'data', 'envs.config.ini')
 
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='environments'
         )
         t.assertEqual(config_source.get('doc'), 'our testing environment')
@@ -148,7 +148,7 @@ class FreeFormConfigTreeTests(TestCase):
 
     def test_sections_config(t) -> None:
         config_file_name = path.join(t.this_dir, 'data', 'sections.config.ini')
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='sections'
         )
         source_list = SourceList([config_source])
@@ -196,7 +196,7 @@ class FreeFormConfigTreeTests(TestCase):
         example_dir = path.dirname(path.realpath(__file__))
         config_file_name = path.join(example_dir, 'data', 'flat.config.ini')
 
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='flat'
         )
         source_list = SourceList([config_source])
