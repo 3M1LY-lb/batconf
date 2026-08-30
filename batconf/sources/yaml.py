@@ -16,7 +16,7 @@ from .types import (
     FileSourceP,
     MissingFileOption as _MissingFileOption,
 )
-from ..source import SourceInterface
+from ..source import _SourceInterface
 from ._compat import make_deprecated_getattr
 
 
@@ -120,7 +120,7 @@ class YamlSource(FileSourceP):
     __repr__ = file_config_repr
 
 
-class YamlConfig(SourceInterface):
+class YamlConfig(_SourceInterface):
     """
     Configuration source backed by a YAML file.
 
@@ -192,7 +192,7 @@ class YamlConfig(SourceInterface):
             return 'environments'
         return 'sections'
 
-    def __getitem__(self, key: str) -> SourceInterface | str:
+    def __getitem__(self, key: str) -> _SourceInterface | str:
         path = key.split('.')
         conf = self._data
         for k in path:
