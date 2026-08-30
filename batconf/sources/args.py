@@ -1,10 +1,10 @@
 from argparse import Namespace
 
-from ..source import SourceInterface
+from ..source import _SourceInterface
 from ._compat import make_deprecated_getattr
 
 
-class CliArgsConfig(SourceInterface):
+class CliArgsConfig(_SourceInterface):
     """Deprecated. Use NamespaceSource instead.
 
     Legacy argparse.Namespace configuration source.
