@@ -104,3 +104,25 @@ class MakeDeprecatedGetAttrTests(TestCase):
             "use 'NewName' instead.",
             str(w[0].message),
         )
+
+    def test_advice_replaces_the_closing_sentence(t):
+        """advice replaces the closing sentence for a deprecated name that
+        has no drop-in replacement, keeping the removal version."""
+        dga = make_deprecated_getattr(
+            deprecated={'OldName': 'NewName'},
+            module_globals=t.module_globals,
+            module_name=t.module_name,
+            advice={'OldName': 'delete it.'},
+        )
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            result = dga('OldName')
+
+        t.assertIs(result, sentinel.NewClass)
+        t.assertIs(w[0].category, DeprecationWarning)
+        t.assertEqual(
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            'delete it.',
+            str(w[0].message),
+        )

@@ -9,10 +9,16 @@ from dataclasses import _MISSING_TYPE
 
 from ..source import SourceInterface
 from ..types import ConfigP, FieldP
-from ._compat import deprecated_module
+from ._compat import deprecated_module, make_deprecated_getattr
 
 
 class DataclassConfig(SourceInterface):
+    """Deprecated. Reads default values from the config schema.
+
+    :class:`~batconf.manager.Configuration` reads schema defaults itself
+    since v0.2.0, so this source adds nothing to a source list.
+    """
+
     def __init__(
         self, ConfigClass: ConfigP | Any, path: str | None = None
     ):
@@ -26,7 +32,7 @@ class DataclassConfig(SourceInterface):
 
         for field in _fields(ConfigClass):
             if isinstance(field.type, ConfigP):
-                self._data[field.name] = DataclassConfig(field.type)
+                self._data[field.name] = _DataclassConfig(field.type)
             elif type(field.default) is _MISSING_TYPE:
                 self._data[field.name] = None
             else:
@@ -63,5 +69,21 @@ def _fields(dataclass: ConfigP) -> Iterable[FieldP]:
         yield v
 
 
-_VALUES: TypeAlias = DataclassConfig | str | None
+_DataclassConfig = DataclassConfig
+del DataclassConfig
+
+_VALUES: TypeAlias = _DataclassConfig | str | None
 _DATA_DICT_TYPE: TypeAlias = dict[str, _VALUES]
+
+
+_DEPRECATION_ADVICE = (
+    'Configuration reads schema defaults directly since v0.2.0, so a '
+    'DataclassConfig(config_class) entry in a source list can be deleted.'
+)
+
+__getattr__ = make_deprecated_getattr(
+    deprecated={'DataclassConfig': '_DataclassConfig'},
+    module_globals=globals(),
+    module_name=__name__,
+    advice={'DataclassConfig': _DEPRECATION_ADVICE},
+)
