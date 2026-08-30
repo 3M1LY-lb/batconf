@@ -1,11 +1,13 @@
-import warnings
 from argparse import Namespace
 
 from ..source import SourceInterface
+from ._compat import make_deprecated_getattr
 
 
 class CliArgsConfig(SourceInterface):
-    """Legacy argparse.Namespace configuration source.
+    """Deprecated. Use NamespaceSource instead.
+
+    Legacy argparse.Namespace configuration source.
 
     Using this source, the key value will overwrite every
     option where the final key in its path matches.
@@ -30,15 +32,20 @@ class CliArgsConfig(SourceInterface):
     """
 
     def __init__(self, args: Namespace) -> None:
-        warnings.warn(
-            'CliArgsConfig is deprecated and will be removed in a future release. '
-            'Use NamespaceConfig from batconf.sources.argparse instead.',
-            DeprecationWarning,
-            stacklevel=2,
-        )
         self._data = args
 
     def get(self, key: str, module: str | None = None) -> str | None:
         key = key.split('.')[-1]
 
         return getattr(self._data, key, None)
+
+
+_CliArgsConfig = CliArgsConfig
+del CliArgsConfig
+
+__getattr__ = make_deprecated_getattr(
+    deprecated={'CliArgsConfig': 'NamespaceSource'},
+    module_globals=globals(),
+    module_name=__name__,
+    targets={'CliArgsConfig': '_CliArgsConfig'},
+)
