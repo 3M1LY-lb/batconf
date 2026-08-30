@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import batconf.sources.argparse as argparse_module
 from batconf.sources.argparse import NamespaceSource
 
 from argparse import ArgumentParser, Namespace
@@ -58,18 +59,15 @@ class NamespaceSourceTests(TestCase):
 class NamespaceConfigDeprecationTests(TestCase):
     """NamespaceConfig is the pre-0.4 name for NamespaceSource."""
 
-    def test_access_fires_warning(t):
-        import batconf.sources.argparse as argparse_module
-        with t.assertWarns(DeprecationWarning) as cm:
-            argparse_module.__getattr__('NamespaceConfig')
-        t.assertEqual(
-            "'NamespaceConfig' is deprecated and will be removed in "
-            "v0.5.0; use 'NamespaceSource' instead.",
-            str(cm.warning),
-        )
+    def test___getattr__(t):
+        with t.subTest('warns and names the replacement'):
+            with t.assertWarns(DeprecationWarning) as cm:
+                alias = argparse_module.__getattr__('NamespaceConfig')
+            t.assertEqual(
+                "'NamespaceConfig' is deprecated and will be removed in "
+                "v0.5.0; use 'NamespaceSource' instead.",
+                str(cm.warning),
+            )
 
-    def test_resolves_to_the_renamed_class(t):
-        import batconf.sources.argparse as argparse_module
-        with t.assertWarns(DeprecationWarning):
-            alias = argparse_module.__getattr__('NamespaceConfig')
-        t.assertIs(alias, argparse_module.NamespaceSource)
+        with t.subTest('resolves to the renamed class'):
+            t.assertIs(alias, argparse_module.NamespaceSource)

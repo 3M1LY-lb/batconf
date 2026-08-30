@@ -101,20 +101,21 @@ class TestSourceList(TestCase):
 class SourceInterfaceDeprecationTests(TestCase):
     """The SourceInterface name resolves through the module __getattr__."""
 
-    def test_returns_the_abc_and_warns(t):
-        with t.assertWarns(DeprecationWarning) as cm:
-            alias = source.__getattr__('SourceInterface')
-        t.assertIs(alias, _SourceInterface)
-        t.assertEqual(
-            "'SourceInterface' is deprecated and will be removed in "
-            "v0.5.0; use 'SourceInterfaceP' instead.",
-            str(cm.warning),
-        )
+    def test___getattr__(t):
+        with t.subTest('warns and names the replacement'):
+            with t.assertWarns(DeprecationWarning) as cm:
+                alias = source.__getattr__('SourceInterface')
+            t.assertIs(alias, _SourceInterface)
+            t.assertEqual(
+                "'SourceInterface' is deprecated and will be removed in "
+                "v0.5.0; use 'SourceInterfaceP' instead.",
+                str(cm.warning),
+            )
 
-    def test_unknown_name_raises_attribute_error(t):
-        with t.assertRaises(AttributeError) as err:
-            source.__getattr__('NoSuchName')
-        t.assertEqual(
-            "module 'batconf.source' has no attribute 'NoSuchName'",
-            str(err.exception),
-        )
+        with t.subTest('unknown name raises AttributeError'):
+            with t.assertRaises(AttributeError) as err:
+                source.__getattr__('NoSuchName')
+            t.assertEqual(
+                "module 'batconf.source' has no attribute 'NoSuchName'",
+                str(err.exception),
+            )

@@ -417,8 +417,9 @@ class ImportTomlLoadFunctionTests(TestCase):
 class TomlImportErrorMessageTests(TestCase):
     """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
 
-    def test_sentence_starts_capitalized(t):
-        t.assertIn(
-            'required. Install the optional extra',
-            _TOML_IMPORT_ERROR_MSG,
-        )
+    def test__TOML_IMPORT_ERROR_MSG(t):
+        with t.subTest('sentence break is capitalized'):
+            t.assertIn(
+                'required. Install the optional extra',
+                _TOML_IMPORT_ERROR_MSG,
+            )

@@ -101,12 +101,16 @@ class YamlConfigMissingFileTests(TestCase):
 class YamlConfigDeprecationTests(TestCase):
     """YamlConfig is the pre-0.4 YAML source, kept for one more release."""
 
-    def test_access_fires_warning(t):
+    def test___getattr__(t):
         import batconf.sources.yaml as yaml_module
-        with t.assertWarns(DeprecationWarning) as cm:
-            yaml_module.__getattr__('YamlConfig')
-        t.assertEqual(
-            "'YamlConfig' is deprecated and will be removed in v0.5.0; "
-            "use 'YamlSource' instead.",
-            str(cm.warning),
-        )
+        with t.subTest('warns and names the replacement'):
+            with t.assertWarns(DeprecationWarning) as cm:
+                alias = yaml_module.__getattr__('YamlConfig')
+            t.assertEqual(
+                "'YamlConfig' is deprecated and will be removed in v0.5.0; "
+                "use 'YamlSource' instead.",
+                str(cm.warning),
+            )
+
+        with t.subTest('resolves to the legacy class'):
+            t.assertIs(alias, yaml_module._YamlConfig)

@@ -21,8 +21,7 @@ class SourcesTypesTests(TestCase):
         checked without inheriting from anything."""
 
         class Source:
-            def get(self, key: str, path: str | None = None) -> str | None:
-                return None
+            def get(self, key: str, path: str | None = None) -> None: ...
 
         with t.subTest('SourceInterfaceP instance'):
             t.assertIsInstance(Source(), types.SourceInterfaceP)
