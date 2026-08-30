@@ -24,7 +24,11 @@ class SourcesTypesTests(TestCase):
                 alias = types.SourceInterfaceProto
             t.assertIs(alias, types.SourceInterfaceP)
             t.assertEqual(len(w), 1)
-            t.assertIn('SourceInterfaceProto', str(w[0].message))
+            t.assertEqual(
+                "'SourceInterfaceProto' is deprecated and will be removed "
+                "in v0.5.0; use 'SourceInterfaceP' instead.",
+                str(w[0].message),
+            )
             t.assertIs(w[0].category, DeprecationWarning)
 
     def test_all_is_complete(t):
