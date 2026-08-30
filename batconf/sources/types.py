@@ -1,5 +1,7 @@
 from typing import Literal, Protocol
 
+from ._compat import make_deprecated_getattr
+
 ConfigFileFormats = Literal['flat', 'sections', 'environments']
 FILE_FORMATS: list[ConfigFileFormats] = ['flat', 'sections', 'environments']
 MissingFileOption = Literal['ignore', 'warn', 'error']
@@ -52,15 +54,8 @@ _deprecated: dict[str, str] = {
     'SourceInterfaceProto': 'SourceInterfaceP',
 }
 
-
-def __getattr__(name: str):
-    if name in _deprecated:
-        import warnings
-        new = _deprecated[name]
-        warnings.warn(
-            f'{name!r} is deprecated, use {new!r} instead.',
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return globals()[new]
-    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+__getattr__ = make_deprecated_getattr(
+    deprecated=_deprecated,
+    module_globals=globals(),
+    module_name=__name__,
+)
