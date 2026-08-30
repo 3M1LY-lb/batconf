@@ -104,3 +104,21 @@ class MakeDeprecatedGetAttrTests(TestCase):
             "use 'NewName' instead.",
             str(w[0].message),
         )
+
+    def test_messages_overrides_the_warning_text(t):
+        """messages replaces the default text for a deprecated name that
+        has no drop-in replacement."""
+        dga = make_deprecated_getattr(
+            deprecated={'OldName': 'NewName'},
+            module_globals=t.module_globals,
+            module_name=t.module_name,
+            messages={'OldName': 'OldName is obsolete; delete it.'},
+        )
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            result = dga('OldName')
+
+        t.assertIs(result, sentinel.NewClass)
+        t.assertIs(w[0].category, DeprecationWarning)
+        t.assertEqual('OldName is obsolete; delete it.', str(w[0].message))
