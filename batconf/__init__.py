@@ -35,8 +35,8 @@ See :mod:`batconf.types` for Protocol types used in type hints.
 from .lib import insert_source, ConfigSingleton
 from .manager import Configuration
 from .source import SourceList
-from .sources.argparse import NamespaceConfig as NamespaceSource, Namespace
-from .sources.env import EnvConfig as EnvSource
+from .sources.argparse import NamespaceSource, Namespace
+from .sources.env import EnvSource
 from .sources.ini import IniSource
 from .sources.toml import TomlSource
 from .sources.yaml import YamlSource

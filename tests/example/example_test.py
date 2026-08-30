@@ -292,7 +292,7 @@ class LibTests(TestCase):
             '    |    |    |- key1: "config.ini: clientB.key1"\n'
             '    |    |    |- key2: "DEFAULT VALUE"\n'
             'SourceList=[\n'
-            f'    Environment Variables: EnvConfig(),\n'
+            f'    Environment Variables: EnvSource(),\n'
             f'    Ini File: IniSource(file_path={CONFIG_FILE_NAME}, '
             'config_env=test, missing_file_option=warn, '
             'file_format=environments),\n'

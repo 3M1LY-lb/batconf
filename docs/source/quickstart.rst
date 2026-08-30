@@ -211,7 +211,7 @@ Access config option values using python's attribute (``.``) notation.
         |    |- host: "0.0.0.0"
         |    |- port: "5000"
     SourceList=[
-        Environment Variables: EnvConfig(),
+        Environment Variables: EnvSource(),
         Ini File: IniSource(file_path=config.ini, config_env=None, missing_file_option=warn, file_format=environments),
     ]
 

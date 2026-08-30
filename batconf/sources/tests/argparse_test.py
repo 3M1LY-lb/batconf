@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from ..argparse import NamespaceConfig, Namespace
+from ..argparse import NamespaceSource, Namespace
 
 
-class TestNamespaceConfig(TestCase):
+class TestNamespaceSource(TestCase):
     def test_get(t):
         cli_args = Namespace(
             config_file='example.config.yaml',
@@ -12,7 +12,7 @@ class TestNamespaceConfig(TestCase):
         setattr(cli_args, 'path.style.opt', 'path-style-option')
         setattr(cli_args, 'bat.module.path.to.key', 'value')
 
-        cs = NamespaceConfig(cli_args)
+        cs = NamespaceSource(cli_args)
 
         with t.subTest('single key'):
             t.assertEqual(cs.get('config_file'), 'example.config.yaml')
@@ -27,9 +27,9 @@ class TestNamespaceConfig(TestCase):
             t.assertEqual(cs.get('to.key', path='bat.module.path'), 'value')
 
     def test___str__(t) -> None:
-        cs = NamespaceConfig(Namespace())
+        cs = NamespaceSource(Namespace())
         t.assertEqual(f'Namespace Source: {repr(cs)}', str(cs))
 
     def test___repr__(t) -> None:
-        cs = NamespaceConfig(Namespace())
-        t.assertEqual('NamespaceConfig(namespace=Namespace())', repr(cs))
+        cs = NamespaceSource(Namespace())
+        t.assertEqual('NamespaceSource(namespace=Namespace())', repr(cs))
