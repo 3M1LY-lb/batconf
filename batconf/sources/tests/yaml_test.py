@@ -412,7 +412,11 @@ class get_file_pathTests(TestCase):
 
         t.missing_file = MagicMock(spec=_PathClass, name='missing_file')
         t.missing_file.is_file.return_value = False
+        t.missing_file.__str__.return_value = 'missing.config.yaml'
         t.missing_file.resolve.return_value.is_file.return_value = False
+        t.missing_file.resolve.return_value.__str__.return_value = (
+            '/resolved/missing.config.yaml'
+        )
 
         patches = [
             'Path',
@@ -447,11 +451,18 @@ class get_file_pathTests(TestCase):
         """
         t.Path.return_value = t.missing_file
 
-        with t.assertRaises(FileNotFoundError):
+        with t.assertRaises(FileNotFoundError) as err:
             _ = get_file_path(
                 file_name=t.config_file_name,
                 when_missing='error',
             )
+
+        t.assertEqual(
+            'Could not find Yaml Config file.'
+            ' Using absolute path: missing.config.yaml'
+            ' or relative path: /resolved/missing.config.yaml.',
+            str(err.exception),
+        )
 
     def test_missing_ignore(t):
         t.Path.return_value = t.missing_file
@@ -554,3 +565,15 @@ class YamlLoaderFunctionsTests(TestCase):
             t.open.side_effect = FileNotFoundError
             with t.assertRaises(FileNotFoundError):
                 _ = _load_yaml_file(file_path=t.file_path)
+
+
+class YamlImportErrorMessageTests(TestCase):
+    """_YAML_IMPORT_ERROR_MSG tells the user how to install pyyaml."""
+
+    def test__YAML_IMPORT_ERROR_MSG(t):
+        t.assertEqual(
+            'PyYAML is required to use YamlSource. '
+            'Please install it using `pip install pyyaml`. '
+            'Or as an optional extra using `pip install batconf[yaml]`.',
+            _YAML_IMPORT_ERROR_MSG,
+        )
