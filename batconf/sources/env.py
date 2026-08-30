@@ -1,10 +1,10 @@
 import os
 
-from ..source import SourceInterface
+from .types import SourceInterfaceP
 from ._compat import deprecated_module, make_deprecated_getattr
 
 
-class EnvSource(SourceInterface):
+class EnvSource(SourceInterfaceP):
     """Configuration source that reads from environment variables.
 
     Keys are resolved by converting the dotted config path into an

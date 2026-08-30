@@ -1,4 +1,4 @@
-from batconf.source import SourceInterface
+from batconf.sources.types import SourceInterfaceP
 from batconf.sources._compat import (
     deprecated_module,
     make_deprecated_getattr,
@@ -7,7 +7,7 @@ from batconf.sources._compat import (
 from argparse import Namespace
 
 
-class NamespaceSource(SourceInterface):
+class NamespaceSource(SourceInterfaceP):
     """A configuration source
     that retrieves values from an argparse.Namespace object.
 

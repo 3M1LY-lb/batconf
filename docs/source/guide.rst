@@ -79,23 +79,31 @@ The simplest approach: implement ``get`` on any class, no base class required.
             full_key = f'{path}.{key}' if path else key
             return self._client.read(full_key)
 
-Subclassing ``SourceInterface``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Subclassing :py:class:`SourceInterface <batconf.source.SourceInterface>`
-gives you the ABC enforcement and is useful if you want type checkers to
-flag incomplete implementations.
+Declaring the Protocol explicitly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Subclass
+:py:class:`SourceInterfaceP <batconf.sources.types.SourceInterfaceP>`
+when you want a type checker to flag an incomplete implementation. The
+built-in sources are written this way. Behaviour is unchanged — the
+Protocol is satisfied structurally either way.
 
 .. code-block:: python
 
-    from batconf.source import SourceInterface
+    from batconf.sources.types import SourceInterfaceP
 
-    class VaultSource(SourceInterface):
+    class VaultSource(SourceInterfaceP):
         def __init__(self, client):
             self._client = client
 
         def get(self, key: str, path: str | None = None) -> str | None:
             full_key = f'{path}.{key}' if path else key
             return self._client.read(full_key)
+
+.. deprecated:: 0.4.1
+   ``batconf.source.SourceInterface``, an abstract base class, was a
+   second way to declare the same contract. It emits a
+   ``DeprecationWarning`` and is removed in v0.5.0. Subclass
+   ``SourceInterfaceP`` instead, or drop the base class entirely.
 
 Registering a custom source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

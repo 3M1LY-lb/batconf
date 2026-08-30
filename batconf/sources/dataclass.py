@@ -7,12 +7,12 @@ from typing import (
 
 from dataclasses import _MISSING_TYPE
 
-from ..source import SourceInterface
+from ..source import _SourceInterface
 from ..types import ConfigP, FieldP
 from ._compat import deprecated_module, make_deprecated_getattr
 
 
-class DataclassConfig(SourceInterface):
+class DataclassConfig(_SourceInterface):
     """Deprecated. Reads default values from the config schema.
 
     :class:`~batconf.manager.Configuration` reads schema defaults itself
