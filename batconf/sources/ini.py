@@ -6,9 +6,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from enum import Enum, auto
 
-from .types import FileSourceP
+from .types import ConfigFileFormats, FileSourceP
 from .file import (
-    ConfigFileFormats,
     _MissingFileOption,
     FileLoaderP,
     missing_file_handlers as _missing_file_handlers,
@@ -302,9 +301,3 @@ _file_loader_map = {
     for ini_format, loader_fn in _file_type_loaders.items()
     for when_missing, handler_fn in _missing_file_handlers.items()
 }
-
-
-_MOD_PARAM_DEPRECATION_WARNING = (
-    'The module argument is deprecated and will be removed'
-    ' from the SourceInterface.get interface in a future release.'
-)

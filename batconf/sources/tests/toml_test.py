@@ -414,3 +414,15 @@ class ImportTomlLoadFunctionTests(TestCase):
     def test__import_toml_load_function_with_toml(t):
         load = _import_toml_load_function()
         t.assertIs(sentinel.toml_load, load)
+
+
+class TomlImportErrorMessageTests(TestCase):
+    """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
+
+    def test__TOML_IMPORT_ERROR_MSG(t):
+        t.assertEqual(
+            'Failed to import toml.load,'
+            ' for python < 3.11, the toml package is required.'
+            ' Install the optional extra batconf[toml]',
+            _TOML_IMPORT_ERROR_MSG,
+        )
