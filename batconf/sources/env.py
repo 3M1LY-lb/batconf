@@ -1,10 +1,10 @@
 import os
 
 from ..source import SourceInterface
-from ._compat import deprecated_module
+from ._compat import deprecated_module, make_deprecated_getattr
 
 
-class EnvConfig(SourceInterface):
+class EnvSource(SourceInterface):
     """Configuration source that reads from environment variables.
 
     Keys are resolved by converting the dotted config path into an
@@ -47,3 +47,10 @@ class EnvConfig(SourceInterface):
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
+
+
+__getattr__ = make_deprecated_getattr(
+    deprecated={'EnvConfig': 'EnvSource'},
+    module_globals=globals(),
+    module_name=__name__,
+)
