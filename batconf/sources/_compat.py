@@ -32,7 +32,7 @@ def make_deprecated_getattr(
     module_globals: dict,
     module_name: str,
     targets: dict[str, str] | None = None,
-    messages: dict[str, str] | None = None,
+    advice: dict[str, str] | None = None,
 ):
     """Return a module-level ``__getattr__`` that warns on deprecated names.
 
@@ -49,10 +49,10 @@ def make_deprecated_getattr(
     targets : dict[str, str], optional
         Overrides which globals key is returned for each old name.
         When omitted, the display name from ``deprecated`` is used as the key.
-    messages : dict[str, str], optional
-        Replaces the whole warning text for a name. Use it when the
-        deprecated name has no drop-in replacement; the text must name the
-        removal version itself.
+    advice : dict[str, str], optional
+        Replaces the closing sentence of the warning for a name. Use it when
+        the deprecated name has no drop-in replacement. The removal version
+        stays in the shared opening clause.
 
     Returns
     -------
@@ -60,22 +60,20 @@ def make_deprecated_getattr(
         A ``__getattr__`` function suitable for assignment at module level.
     """
     _targets = targets or {}
-    _messages = messages or {}
+    _advice = advice or {}
 
     def __getattr__(name: str):
-        if custom := _messages.get(name):
-            warnings.warn(custom, DeprecationWarning, stacklevel=2)
-            return module_globals[_targets.get(name, deprecated[name])]
-        if alias := deprecated.get(name):
-            warnings.warn(
-                f'{name!r} is deprecated and will be removed in v0.5.0; '
-                f'use {alias!r} instead.',
-                DeprecationWarning,
-                stacklevel=2,
+        if name not in deprecated:
+            raise AttributeError(
+                f'module {module_name!r} has no attribute {name!r}'
             )
-            return module_globals[_targets.get(name, alias)]
-        raise AttributeError(
-            f'module {module_name!r} has no attribute {name!r}'
+        alias = deprecated[name]
+        warnings.warn(
+            f'{name!r} is deprecated and will be removed in v0.5.0; '
+            + _advice.get(name, f'use {alias!r} instead.'),
+            DeprecationWarning,
+            stacklevel=2,
         )
+        return module_globals[_targets.get(name, alias)]
 
     return __getattr__

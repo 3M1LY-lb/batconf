@@ -76,8 +76,7 @@ _VALUES: TypeAlias = _DataclassConfig | str | None
 _DATA_DICT_TYPE: TypeAlias = dict[str, _VALUES]
 
 
-_DEPRECATION_MESSAGE = (
-    "'DataclassConfig' is deprecated and will be removed in v0.5.0; "
+_DEPRECATION_ADVICE = (
     'Configuration reads schema defaults directly since v0.2.0, so a '
     'DataclassConfig(config_class) entry in a source list can be deleted.'
 )
@@ -86,5 +85,5 @@ __getattr__ = make_deprecated_getattr(
     deprecated={'DataclassConfig': '_DataclassConfig'},
     module_globals=globals(),
     module_name=__name__,
-    messages={'DataclassConfig': _DEPRECATION_MESSAGE},
+    advice={'DataclassConfig': _DEPRECATION_ADVICE},
 )
