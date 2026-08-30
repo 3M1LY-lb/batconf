@@ -108,7 +108,7 @@ lookups such as ``cfg.clients[client_id]``.
 Deprecations
 ========================
 The following names still work but now emit a ``DeprecationWarning`` and
-will be removed in a future release. Update your imports:
+will be removed in v0.5.0. Update your imports:
 
 .. code-block:: python
 
@@ -135,8 +135,8 @@ v0.5.0; use ``path`` instead:
 The file sources ``IniSource``, ``TomlSource`` and ``YamlSource`` accept
 ``path`` only and raise ``TypeError`` if given ``module``.
 
-The ``Proto``-suffixed type names were removed outright from the modules
-that used to export them, so update those imports:
+The ``Protocol``- and ``Proto``-suffixed type names were removed outright
+from the modules that used to export them, so update those imports:
 
 .. code-block:: python
 

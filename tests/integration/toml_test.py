@@ -169,7 +169,8 @@ class DeprecationTests(TestCase):
         with t.assertWarns(DeprecationWarning) as cm:
             TomlConfig = toml_module.__getattr__('TomlConfig')
         t.assertEqual(
-            "'TomlConfig' is deprecated, use 'TomlSource' instead.",
+            "'TomlConfig' is deprecated and will be removed in v0.5.0; "
+            "use 'TomlSource' instead.",
             str(cm.warning),
         )
 
