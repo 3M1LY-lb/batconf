@@ -10,7 +10,6 @@ from unittest.mock import (
 
 from pathlib import Path as _PathClass
 
-import warnings
 
 from ..toml import (
     TomlSource,
@@ -287,8 +286,7 @@ class TomlSourceTests(TestCase):
 
 class DeprecationTests(TestCase):
     def test_TomlConfig_is_TomlSource_subclass(t):
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', DeprecationWarning)
+        with t.assertWarns(DeprecationWarning):
             result = __getattr__('TomlConfig')
         t.assertTrue(issubclass(result, TomlSource))
 
