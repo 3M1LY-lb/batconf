@@ -8,11 +8,14 @@ from logging import getLogger
 from pathlib import Path
 
 from .file import (
-    ConfigFileFormats,
     file_config_repr,
     missing_file_handlers as _missing_file_handlers,
 )
-from .types import FileSourceP, MissingFileOption as _MissingFileOption
+from .types import (
+    ConfigFileFormats,
+    FileSourceP,
+    MissingFileOption as _MissingFileOption,
+)
 from ..source import SourceInterface
 from ._compat import make_deprecated_getattr
 
@@ -250,7 +253,7 @@ def get_file_path(
         log.warning(_missing_config_warning)
     elif when_missing == 'error':
         raise FileNotFoundError(
-            f'Could not find Yaml Config file'
+            'Could not find Yaml Config file.'
             f' Using absolute path: {path}'
             f' or relative path: {relpath}.'
         )
@@ -287,7 +290,7 @@ def _load_yaml_file(file_path: Path) -> dict:
 
 
 _YAML_IMPORT_ERROR_MSG = (
-    'PyYAML is required to use YamlConfig. '
-    'Please install it using `pip install pyyaml`.'
+    'PyYAML is required to use YamlSource. '
+    'Please install it using `pip install pyyaml`. '
     'Or as an optional extra using `pip install batconf[yaml]`.'
 )

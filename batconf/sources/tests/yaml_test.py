@@ -447,11 +447,13 @@ class get_file_pathTests(TestCase):
         """
         t.Path.return_value = t.missing_file
 
-        with t.assertRaises(FileNotFoundError):
+        with t.assertRaises(FileNotFoundError) as err:
             _ = get_file_path(
                 file_name=t.config_file_name,
                 when_missing='error',
             )
+
+        t.assertIn('Could not find Yaml Config file.', str(err.exception))
 
     def test_missing_ignore(t):
         t.Path.return_value = t.missing_file
@@ -554,3 +556,14 @@ class YamlLoaderFunctionsTests(TestCase):
             t.open.side_effect = FileNotFoundError
             with t.assertRaises(FileNotFoundError):
                 _ = _load_yaml_file(file_path=t.file_path)
+
+
+class YamlImportErrorMessageTests(TestCase):
+    """_YAML_IMPORT_ERROR_MSG tells the user how to install pyyaml."""
+
+    def test_names_the_current_source_class(t):
+        t.assertIn('YamlSource', _YAML_IMPORT_ERROR_MSG)
+        t.assertNotIn('YamlConfig', _YAML_IMPORT_ERROR_MSG)
+
+    def test_sentences_are_separated(t):
+        t.assertIn('`pip install pyyaml`. Or', _YAML_IMPORT_ERROR_MSG)

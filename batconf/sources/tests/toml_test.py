@@ -414,3 +414,13 @@ class ImportTomlLoadFunctionTests(TestCase):
     def test__import_toml_load_function_with_toml(t):
         load = _import_toml_load_function()
         t.assertIs(sentinel.toml_load, load)
+
+
+class TomlImportErrorMessageTests(TestCase):
+    """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
+
+    def test_sentence_starts_capitalized(t):
+        t.assertIn(
+            'required. Install the optional extra',
+            _TOML_IMPORT_ERROR_MSG,
+        )

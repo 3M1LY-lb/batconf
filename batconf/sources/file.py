@@ -3,7 +3,7 @@ from logging import getLogger
 
 from pathlib import Path
 
-from .types import ConfigFileFormats, MissingFileOption
+from .types import MissingFileOption
 
 # backwards-compatible internal alias
 _MissingFileOption = MissingFileOption
@@ -17,6 +17,8 @@ log = getLogger(__name__)
 
 class FileLoaderP(Protocol):
     def __call__(self, file_path: Path) -> Any: ...
+
+
 EmptyConfigurationSentinel = object()
 
 
