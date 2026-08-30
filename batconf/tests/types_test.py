@@ -30,6 +30,9 @@ class BatconfTypesTests(TestCase):
                 t.assertIs(alias, expected)
                 t.assertEqual(len(w), 1)
                 t.assertIn(old_name, str(w[0].message))
+                t.assertIn(
+                    'will be removed in v0.5.0', str(w[0].message)
+                )
                 t.assertIs(w[0].category, DeprecationWarning)
 
     def test_type_aliases(t):

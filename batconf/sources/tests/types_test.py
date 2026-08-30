@@ -25,6 +25,7 @@ class SourcesTypesTests(TestCase):
             t.assertIs(alias, types.SourceInterfaceP)
             t.assertEqual(len(w), 1)
             t.assertIn('SourceInterfaceProto', str(w[0].message))
+            t.assertIn('will be removed in v0.5.0', str(w[0].message))
             t.assertIs(w[0].category, DeprecationWarning)
 
     def test_all_is_complete(t):
