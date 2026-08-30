@@ -1,14 +1,16 @@
-from typing import Literal, Protocol
+from typing import Literal, Protocol, runtime_checkable
 
 ConfigFileFormats = Literal['flat', 'sections', 'environments']
 FILE_FORMATS: list[ConfigFileFormats] = ['flat', 'sections', 'environments']
 MissingFileOption = Literal['ignore', 'warn', 'error']
 
 
+@runtime_checkable
 class SourceInterfaceP(Protocol):
     def get(self, key: str, path: str | None) -> str | None: ...
 
 
+@runtime_checkable
 class FileSourceP(SourceInterfaceP, Protocol):
     """Protocol for file-backed configuration sources.
 
