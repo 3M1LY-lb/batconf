@@ -16,6 +16,23 @@ class SourcesTypesTests(TestCase):
         t.assertTrue(hasattr(types, 'SourceInterfaceP'))
         t.assertTrue(hasattr(types, 'FileSourceP'))
 
+    def test_runtime_checkable(t):
+        """The protocols answer isinstance, so a custom source can be
+        checked without inheriting from anything."""
+
+        class Source:
+            def get(self, key: str, path: str | None = None) -> str | None:
+                return None
+
+        with t.subTest('SourceInterfaceP instance'):
+            t.assertIsInstance(Source(), types.SourceInterfaceP)
+
+        with t.subTest('SourceInterfaceP subclass'):
+            t.assertTrue(issubclass(Source, types.SourceInterfaceP))
+
+        with t.subTest('FileSourceP instance'):
+            t.assertIsInstance(Source(), types.FileSourceP)
+
     def test_deprecated_names(t):
         """Old Proto-suffixed names emit DeprecationWarning but still resolve."""
         with t.subTest('SourceInterfaceProto'):
