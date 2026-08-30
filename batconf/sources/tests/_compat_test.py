@@ -67,7 +67,8 @@ class MakeDeprecatedGetAttrTests(TestCase):
             t.dga('OldName')
         t.assertIs(w[0].category, DeprecationWarning)
         t.assertEqual(
-            f"'OldName' is deprecated, use 'NewName' instead.",
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            "use 'NewName' instead.",
             str(w[0].message)
             )
 
@@ -99,6 +100,7 @@ class MakeDeprecatedGetAttrTests(TestCase):
 
         t.assertIs(result, sentinel.LegacyClass)
         t.assertEqual(
-            "'OldName' is deprecated, use 'NewName' instead.",
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            "use 'NewName' instead.",
             str(w[0].message),
         )

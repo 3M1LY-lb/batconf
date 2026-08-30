@@ -27,7 +27,8 @@ class IniConfigIntegrationTests(TestCase):
         with t.assertWarns(DeprecationWarning) as cm:
             ini_module.__getattr__('IniConfig')
         t.assertEqual(
-            "'IniConfig' is deprecated, use 'IniSource' instead.",
+            "'IniConfig' is deprecated and will be removed in v0.5.0; "
+            "use 'IniSource' instead.",
             str(cm.warning),
         )
 

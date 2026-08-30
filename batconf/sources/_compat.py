@@ -35,6 +35,8 @@ def make_deprecated_getattr(
 ):
     """Return a module-level ``__getattr__`` that warns on deprecated names.
 
+    The warning names v0.5.0 as the removal version.
+
     Parameters
     ----------
     deprecated : dict[str, str]
@@ -57,7 +59,8 @@ def make_deprecated_getattr(
     def __getattr__(name: str):
         if alias := deprecated.get(name):
             warnings.warn(
-                f'{name!r} is deprecated, use {alias!r} instead.',
+                f'{name!r} is deprecated and will be removed in v0.5.0; '
+                f'use {alias!r} instead.',
                 DeprecationWarning,
                 stacklevel=2,
             )
