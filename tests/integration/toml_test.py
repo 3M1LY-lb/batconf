@@ -1,4 +1,3 @@
-import warnings
 from unittest import TestCase, skipIf
 from unittest.mock import patch, Mock
 
@@ -176,7 +175,6 @@ class DeprecationTests(TestCase):
 
     def test_TomlConfig_is_TomlSource_subclass(t):
         import batconf.sources.toml as toml_module
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', DeprecationWarning)
+        with t.assertWarns(DeprecationWarning):
             TomlConfig = toml_module.__getattr__('TomlConfig')
         t.assertTrue(issubclass(TomlConfig, TomlSource))

@@ -113,6 +113,8 @@ notebooks = [
 [tool.pytest.ini_options]
 log_level = "INFO"
 addopts = "--cov=batconf --cov-report=term"
+# Deprecated names must be reached through a test that asserts the warning.
+filterwarnings = ["error::DeprecationWarning"]
 cache_dir = ".cache/pytest"
 python_classes = '*Tests'
 python_files = ["*_test.py", "*_pytest.py", "test_*.py"]
