@@ -1,16 +1,20 @@
-from batconf.source import SourceInterface
-from batconf.sources._compat import deprecated_module
+from batconf.sources.types import SourceInterfaceP
 
 from argparse import Namespace
 
 
-class NamespaceConfig(SourceInterface):
+class NamespaceSource(SourceInterfaceP):
     """A configuration source
     that retrieves values from an argparse.Namespace object.
 
-    parameters
+    A lookup joins ``path`` and ``key`` with a ``.`` and reads that exact
+    attribute. Give each argument a ``dest`` holding its full dotted
+    config path: there is no bare-key fallback, and a nested namespace is
+    never walked.
+
+    Parameters
     ----------
-    namespace : argparse.Namespace:
+    namespace : argparse.Namespace
         An argparse.Namespace instance.
 
     Examples
@@ -18,21 +22,17 @@ class NamespaceConfig(SourceInterface):
     >>> parser = argparse.ArgumentParser()
     >>> parser.add_argument('--host', dest='root.host', default='localhost')
     >>> args = parser.parse_args()
-    >>> config = NamespaceConfig(args)
-    >>> config.get('root.host')
+    >>> src = NamespaceSource(args)
+    >>> src.get('root.host')
+    'localhost'
+    >>> src.get('host', path='root')
     'localhost'
     """
 
     def __init__(self, namespace: Namespace) -> None:
         self._data = namespace
 
-    def get(
-        self,
-        key: str,
-        path: str | None = None,
-        module: str | None = None,
-    ) -> str | None:
-        path = deprecated_module(path, module)
+    def get(self, key: str, path: str | None = None) -> str | None:
         attr = '.'.join((path, key)) if path else key
         return getattr(self._data, attr, None)
 

@@ -10,18 +10,18 @@ from unittest.mock import (
 
 from pathlib import Path as _PathClass
 
-import warnings
 
 from ..toml import (
     TomlSource,
+    ConfigEnvironmentNotFound,
     EmptyConfigDict,
+    SourceDependencyNotFound,
     _load_toml,
     _load_toml_file,
     _missing_file_handlers,
     _import_toml_load_function,
     _TOML_IMPORT_ERROR_MSG,
     Path,
-    __getattr__,
 )
 
 
@@ -90,10 +90,12 @@ LOAD_FLAT_DICT: dict = {'k0': 'v0', 'k1': 'v1'}
 
 class TomlSourceTests(TestCase):
     _load_toml: Mock
+    check_missing_file: Mock
 
     def setUp(t):
         patches = [
             '_load_toml',
+            'check_missing_file',
         ]
         for target in patches:
             patcher = patch(f'{SRC}.{target}', autospec=True)
@@ -115,6 +117,10 @@ class TomlSourceTests(TestCase):
         )
 
         t.assertEqual(ts._config_file_path, Path(t.file_name))
+        t.check_missing_file.assert_called_with(
+            file_path=Path(t.file_name),
+            when_missing=t.default_missing_file_option,
+        )
         # Enable multi-environment support by default
         t.assertEqual('environments', ts._file_format)
 
@@ -160,11 +166,11 @@ class TomlSourceTests(TestCase):
             ts.__dict__['_raw_data'] = {'my_env': env_cfg}
             t.assertDictEqual(env_cfg, ts._data)
 
-        with t.subTest('environments: missing env raises ValueError'):
+        with t.subTest('environments: missing env is not found'):
             ts = TomlSource(file_path=t.file_name)
             ts._config_env = 'missing'
             ts.__dict__['_raw_data'] = {'other_env': env_cfg}
-            with t.assertRaises(ValueError):
+            with t.assertRaises(ConfigEnvironmentNotFound):
                 _ = ts._data
 
         with t.subTest(
@@ -218,16 +224,9 @@ class TomlSourceTests(TestCase):
         with t.subTest('missing item'):
             t.assertEqual(ts.get('_sir_not_appearing_in_this_film'), None)
 
-        with t.subTest(
-            'navigating past a leaf value returns None and logs warning'
-        ):
-            with t.assertLogs(SRC, level='WARNING') as log:
-                result = ts.get('nonexistent', path='bat.key')
-            t.assertIsNone(result)
-            t.assertEqual(
-                log.records[0].getMessage(),
-                'Config path bat.key.nonexistent does not exist',
-            )
+        with t.subTest('navigating past a leaf value returns None silently'):
+            with t.assertNoLogs(SRC, 'WARNING'):
+                t.assertIsNone(ts.get('nonexistent', path='bat.key'))
 
     def test_get__from_sections(t):
         ts = TomlSource(file_path=t.file_name, file_format='sections')
@@ -283,14 +282,6 @@ class TomlSourceTests(TestCase):
             'missing_file_option=warn, file_format=environments)',
             repr(ts),
         )
-
-
-class DeprecationTests(TestCase):
-    def test_TomlConfig_is_TomlSource_subclass(t):
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', DeprecationWarning)
-            result = __getattr__('TomlConfig')
-        t.assertTrue(issubclass(result, TomlSource))
 
 
 class TomlLoaderFunctionsTests(TestCase):
@@ -383,16 +374,16 @@ class ImportTomlLoadFunctionTests(TestCase):
         """The toml module is an optional extra,
         not required to use batconf after Python version 3.11.
         Using batconf without toml should not raise any Errors,
-        But attempting to use TomlConfig when it is not installed
+        But attempting to use TomlSource when it is not installed
         will raise an ImportError on older versions of python without tomllib.
         """
 
         with t.subTest('pytoml behaves as if it is not installed'):
             with t.assertRaises(ImportError):
-                from toml import load  # type: ignore  # noqa
+                from toml import load  # noqa
 
-        with t.subTest('Instantiating TomlSource raises ImportError'):
-            with t.assertRaises(ImportError) as err:
+        with t.subTest('the toml dependency is not found'):
+            with t.assertRaises(SourceDependencyNotFound) as err:
                 _ = _import_toml_load_function()
 
             t.assertEqual(err.exception.msg, _TOML_IMPORT_ERROR_MSG)
@@ -414,3 +405,14 @@ class ImportTomlLoadFunctionTests(TestCase):
     def test__import_toml_load_function_with_toml(t):
         load = _import_toml_load_function()
         t.assertIs(sentinel.toml_load, load)
+
+
+class TomlImportErrorMessageTests(TestCase):
+    """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
+
+    def test__TOML_IMPORT_ERROR_MSG(t):
+        with t.subTest('sentence break is capitalized'):
+            t.assertIn(
+                'required. Install the optional extra',
+                _TOML_IMPORT_ERROR_MSG,
+            )

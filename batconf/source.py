@@ -1,22 +1,16 @@
-from abc import ABCMeta, abstractmethod
-
 from typing import Sequence
 
 from .types import SourceInterfaceP, SourceListP
 
 
-class SourceInterface(SourceInterfaceP, metaclass=ABCMeta):
-    @abstractmethod
-    def get(self, key: str, path: str | None = None) -> str | None:
-        pass
-
-
 class SourceList:
     """An ordered list of configuration sources.
 
-    Sources are queried in order; the first non-``None`` value returned wins.
-    ``None`` entries in the constructor sequence are silently filtered out,
-    making it easy to conditionally include sources.
+    Sources are queried in order; the first truthy value returned wins.
+    A falsey return -- ``None``, ``''``, ``0``, ``False`` -- is treated as
+    missing, and the next source is tried. ``None`` entries in the
+    constructor sequence are silently filtered out, making it easy to
+    conditionally include sources.
 
     Parameters
     ----------

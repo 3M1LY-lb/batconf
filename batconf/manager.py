@@ -3,11 +3,9 @@ from typing import (
     Iterable,
 )
 
+from .errors import ConfigValueNotFound
 from .source import SourceList
 from .types import ConfigP, FieldP, SourceListP
-
-
-ConfigRet = 'Configuration | str'
 
 
 class Configuration:
@@ -31,8 +29,9 @@ class Configuration:
     config_class : ConfigP
         Dataclass whose fields define the configuration schema.
     path : str or None, default=None
-        Dotted namespace path for this configuration node. Defaults to the
-        module of ``config_class`` when not provided.
+        Dotted namespace path for this configuration node. An absent or
+        empty path mounts the schema at the root of the namespace, and
+        every sub-configuration mounts under its field name.
 
     Examples
     --------
@@ -47,7 +46,7 @@ class Configuration:
     def __init__(
         self,
         source_list: SourceListP,
-        config_class: ConfigP | Any,
+        config_class: ConfigP,
         path: str | None = None,
     ):
         self._config_sources = source_list
@@ -58,7 +57,7 @@ class Configuration:
             f.name: Configuration(
                 source_list=source_list,
                 config_class=f.type,
-                path=f'{self._path}.{f.name}',
+                path=self._path_of(f.name),
             )
             for f in _fields(self._config_class)
             if isinstance(f.type, ConfigP)
@@ -85,26 +84,29 @@ class Configuration:
         if value := self._default_values.get(key, None):
             return value
 
-        raise AttributeError(
+        dotted = self._path_of(key)
+
+        raise ConfigValueNotFound(
             'required configuration value not found.\n'
             f' please provide {key}'
             ' as a commandline argument\n'
-            f' or add {self._path}.{key}'
+            f' or add {dotted}'
             ' to your config file\n'
-            f' or add {self._path.replace(".", "_").upper()}_{key.upper()}'
-            ' to your Environment'
+            f' or add {dotted.replace(".", "_").upper()}'
+            ' to your Environment, after any EnvSource prefix'
         )
 
     @property
     def _path(self) -> str:
-        return self.__path if self.__path else self._module
+        return self.__path or ''
 
-    @property
-    def _module(self) -> str:
-        return self._config_class.__module__
+    def _path_of(self, name: str) -> str:
+        """Return the path ``name`` mounts at under this node."""
+        return f'{self._path}.{name}' if self._path else name
 
     def __str__(self) -> str:
-        repr_str = [f'{self._path} {self._config_class}:']
+        header = f'{self._path} ' if self._path else ''
+        repr_str = [f'{header}{self._config_class}:']
         repr_str += _configuration_repr(configuration=self, level=1)
         repr_str.append(str(self._config_sources))
         return '\n'.join(repr_str)

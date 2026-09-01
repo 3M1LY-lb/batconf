@@ -292,7 +292,7 @@ class LibTests(TestCase):
             '    |    |    |- key1: "config.ini: clientB.key1"\n'
             '    |    |    |- key2: "DEFAULT VALUE"\n'
             'SourceList=[\n'
-            f'    Environment Variables: EnvConfig(),\n'
+            f'    Environment Variables: EnvSource(),\n'
             f'    Ini File: IniSource(file_path={CONFIG_FILE_NAME}, '
             'config_env=test, missing_file_option=warn, '
             'file_format=environments),\n'
@@ -310,11 +310,11 @@ def set_environ(key: str, value: str):
         del environ[key]
 
 
-# Additional tests using a YamlConfig instead of IniConfig
+# Additional tests using a YamlSource instead of IniSource
 @skipIf(not _PYYAML_INSTALLED, 'requires pyyaml')
 class GetYamlConfigFunctionTests(TestCase):
     def setUp(t):
-        # Inject a YamlConfig file source, to overwrite the default .ini
+        # Inject a YamlSource file source, to overwrite the default .ini
         t.yaml_config = YamlSource(file_path=yaml_config_file_name)
 
     def test_get_config(t):
@@ -322,7 +322,7 @@ class GetYamlConfigFunctionTests(TestCase):
 
         Submodule configs can be accessed using their namespace.
         """
-        # Inject a YamlConfig file source, to overwrite the default .ini
+        # Inject a YamlSource file source, to overwrite the default .ini
         cfg = get_config(config_file=t.yaml_config)
         # This cfg object can be used to lookup default values
         # provided by the Config dataclasses for the module.

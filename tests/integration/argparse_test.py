@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from batconf.sources.argparse import NamespaceConfig
+from batconf.sources.argparse import NamespaceSource
 
 from argparse import ArgumentParser, Namespace
 
@@ -41,7 +41,7 @@ class NamespaceSourceTests(TestCase):
         t.assertEqual(getattr(namespace, 'root.command1.opt'), 'co1')
 
         # Create a Configuration Source from an argparse Namespace
-        src = NamespaceConfig(namespace)
+        src = NamespaceSource(namespace)
         t.assertEqual(src.get('root.alpha'), 'value_a')
         t.assertEqual(src.get('root.command1.opt'), 'co1')
         t.assertIsNone(src.get('root.command2.opt'))
@@ -50,6 +50,6 @@ class NamespaceSourceTests(TestCase):
         args = ['command2', '--cmd-option=co2']
         parser = argparser()
         namespace = parser.parse_args(args)
-        src = NamespaceConfig(namespace)
+        src = NamespaceSource(namespace)
         t.assertIsNone(src.get('root.command1.opt'))
         t.assertEqual(src.get('root.command2.opt'), 'co2')

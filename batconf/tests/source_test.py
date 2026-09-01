@@ -1,26 +1,9 @@
 from unittest import TestCase
 
-from dataclasses import dataclass
-
-from ..source import (
-    SourceList,
-    SourceInterface,
-)
+from ..source import SourceList
 
 
-class TestSourceInterfaceABC(TestCase):
-    def test_config_source_interface(t):
-        SourceInterface.__abstractmethods__ = set()
-
-        @dataclass
-        class Source(SourceInterface):
-            pass
-
-        cs = Source()
-        t.assertEqual(cs.get('key', path='bat.path'), None)
-
-
-class Source(SourceInterface):
+class Source:
     def __init__(self, data):
         self._data = data
 
