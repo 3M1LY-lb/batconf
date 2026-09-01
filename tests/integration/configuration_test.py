@@ -95,7 +95,7 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=RootConfigSchema,
-            # path='project',  # default = 'configuration_test'
+            path='configuration_test',
         )
 
         # A Configuration's _path is used to lookup values from config sources
@@ -167,12 +167,11 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=ConfigTestSchema,
-            # path='project-name',  # default: 'configuration_test'
+            path='configuration_test',
         )
 
         # NOTE: presently, section-based configs still require a parent section
-        # which should be set to your project's name,
-        # but defaults to the module name
+        # which should be set to your project's name
         t.assertEqual(
             cfg.opt1,
             'sections.config.ini :: configuration_test :: opt1',
@@ -210,7 +209,7 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=FlatConfigSchema,
-            # path='application',  # path does not affect flat files
+            path='application',  # path does not affect flat files
         )
 
         # options not defined in the schema are accessible
