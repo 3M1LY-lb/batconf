@@ -224,6 +224,24 @@ class FreeFormConfigTreeTests(TestCase):
     @patch.dict(
         'batconf.sources.env.os.environ',
         {
+            'MYTOOL_ROOT_VALUE': 'MYTOOL root config value',
+            'MYTOOL_ROOT_L1A_VALUE': 'MYTOOL level 1 config A value',
+        },
+    )
+    def test_environment_prefix_applies_to_every_lookup(t) -> None:
+        """A caller-declared prefix namespaces the whole tree."""
+        cfg = Configuration(
+            source_list=SourceList([EnvSource(prefix='mytool')]),
+            config_class=RootConfigSchema,
+            path='root',
+        )
+
+        t.assertEqual(cfg.value, 'MYTOOL root config value')
+        t.assertEqual(cfg.l1a.value, 'MYTOOL level 1 config A value')
+
+    @patch.dict(
+        'batconf.sources.env.os.environ',
+        {
             'ROOT_VALUE': 'ENVIRONMENT root config value',
             'ROOT_L1A_VALUE': 'ENVIRONMENT level 1 config A value',
         },
