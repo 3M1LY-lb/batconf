@@ -1,8 +1,14 @@
 from unittest import TestCase
+from unittest.mock import Mock, patch
 
 from dataclasses import dataclass
 
-from ..manager import Configuration, _configuration_repr, SourceList
+from ..manager import (
+    Configuration,
+    _configuration_repr,
+    _MODULE_PATH_DEPRECATION,
+    SourceList,
+)
 
 
 SRC = 'batconf.manager'
@@ -212,3 +218,47 @@ class ConfigurationTests(TestCase):
     def test__module(t):
         """the _module attribute is the __module__ of the config_class"""
         t.assertEqual(t.conf._module, t.GlobalConfig.__module__)
+
+
+class ModulePathDeprecationTests(TestCase):
+    """An undeclared path falls back to the schema module name."""
+
+    warnings: Mock
+
+    def setUp(t) -> None:
+        patcher = patch(f'{SRC}.warnings', autospec=True)
+        t.warnings = patcher.start()
+        t.addCleanup(patcher.stop)
+
+        @dataclass
+        class ConfigSchema:
+            arg_1: str = 'a default'
+
+        t.ConfigSchema = ConfigSchema
+        t.conf = Configuration(SourceList([]), ConfigSchema)  # path undeclared
+
+    def test__path(t):
+        with t.subTest('falls back to the schema module, and warns'):
+            t.assertEqual(__name__, t.conf._path)
+            t.warnings.warn.assert_called_once_with(
+                _MODULE_PATH_DEPRECATION,
+                DeprecationWarning,
+                stacklevel=4,
+            )
+
+        with t.subTest('a declared path resolves without a warning'):
+            t.warnings.reset_mock()
+            declared = Configuration(
+                SourceList([]), t.ConfigSchema, path='app'
+            )
+            t.assertEqual('app', declared._path)
+            t.warnings.warn.assert_not_called()
+
+    def test__MODULE_PATH_DEPRECATION(t):
+        t.assertEqual(
+            'the schema module name as the default config path is '
+            'deprecated and will be removed in v0.5.0; pass path= '
+            'explicitly to keep that namespace, or omit it to mount the '
+            'schema at the root.',
+            _MODULE_PATH_DEPRECATION,
+        )
