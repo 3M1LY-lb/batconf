@@ -1,3 +1,5 @@
+import warnings
+
 from typing import (
     Any,
     Iterable,
@@ -8,6 +10,13 @@ from .types import ConfigP, FieldP, SourceListP
 
 
 ConfigRet = 'Configuration | str'
+
+
+_MODULE_PATH_DEPRECATION = (
+    'the schema module name as the default config path is deprecated and '
+    'will be removed in v0.5.0; pass path= explicitly to keep that '
+    'namespace, or omit it to mount the schema at the root.'
+)
 
 
 class Configuration:
@@ -31,8 +40,10 @@ class Configuration:
     config_class : ConfigP
         Dataclass whose fields define the configuration schema.
     path : str or None, default=None
-        Dotted namespace path for this configuration node. Defaults to the
-        module of ``config_class`` when not provided.
+        Dotted namespace path for this configuration node. When not
+        provided it falls back to the module of ``config_class``. That
+        fallback is deprecated and is removed in v0.5.0, where an absent
+        path mounts the schema at the root.
 
     Examples
     --------
@@ -97,7 +108,16 @@ class Configuration:
 
     @property
     def _path(self) -> str:
-        return self.__path if self.__path else self._module
+        if self.__path:
+            return self.__path
+        # stacklevel 4 reaches the caller of a value lookup:
+        # __getattr__ -> _get_config_opt -> _path -> warn
+        warnings.warn(
+            _MODULE_PATH_DEPRECATION,
+            DeprecationWarning,
+            stacklevel=4,
+        )
+        return self._module
 
     @property
     def _module(self) -> str:
