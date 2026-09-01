@@ -1,7 +1,7 @@
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
-from ..env import _BAT_PREFIX_DEPRECATION, EnvSource
+from ..env import EnvSource
 
 
 SRC = 'batconf.sources.env'
@@ -50,8 +50,8 @@ class TestEnvSource(TestCase):
                 'MYTOOL_MODULE_PATH_TO_KEY',
             )
 
-        with t.subTest('prefix=None declares no namespace'):
-            source = EnvSource(prefix=None)
+        with t.subTest('no prefix declares no namespace'):
+            source = EnvSource()
             t.assertEqual(source.env_name('key', path='server'), 'SERVER_KEY')
             t.assertEqual(source.env_name('key'), 'KEY')
 
@@ -62,34 +62,31 @@ class TestEnvSource(TestCase):
         t.assertEqual('EnvSource()', repr(t.es))
 
 
-class BatPrefixDeprecationTests(TestCase):
-    """An undeclared prefix keeps the BAT prefix, and warns."""
-
-    warnings: Mock
+class BareNameGuardTests(TestCase):
+    """Without a namespace, a root lookup reads no ambient variable."""
 
     def setUp(t) -> None:
-        patcher = patch(f'{SRC}.warnings', autospec=True)
-        t.warnings = patcher.start()
-        t.addCleanup(patcher.stop)
-        t.es = EnvSource()  # prefix undeclared: pre-0.5.0 behaviour
+        t.es = EnvSource()  # no prefix: bare names are guarded
+        t.es_raw = EnvSource(raw=True)
 
-    def test_env_name(t):
-        with t.subTest('an empty path keeps the BAT prefix, and warns'):
-            t.assertEqual('BAT_KEY', t.es.env_name('key'))
-            t.warnings.warn.assert_called_once_with(
-                _BAT_PREFIX_DEPRECATION,
-                DeprecationWarning,
-                stacklevel=4,
-            )
+    @patch.dict(
+        f'{SRC}.os.environ',
+        {
+            'VALUE': 'an ambient process variable',
+            'SERVER_HOST': 'localhost',
+            'MYTOOL_VALUE': 'a namespaced value',
+        },
+    )
+    def test_get(t):
+        with t.subTest('an empty path and no prefix resolves nothing'):
+            t.assertIsNone(t.es.get('value'))
 
-        with t.subTest('a path resolves unprefixed, and does not warn'):
-            t.warnings.reset_mock()
-            t.assertEqual('SERVER_HOST', t.es.env_name('host', path='server'))
-            t.warnings.warn.assert_not_called()
+        with t.subTest('a path resolves without a prefix'):
+            t.assertEqual('localhost', t.es.get('host', path='server'))
 
-    def test__BAT_PREFIX_DEPRECATION(t):
-        with t.subTest('names the argument that replaces it'):
-            t.assertIn('prefix=', _BAT_PREFIX_DEPRECATION)
+        with t.subTest('raw=True lifts the guard'):
+            t.assertEqual('an ambient process variable', t.es_raw.get('value'))
 
-        with t.subTest('names the removal version'):
-            t.assertIn('v0.5.0', _BAT_PREFIX_DEPRECATION)
+        with t.subTest('a prefix lifts the guard'):
+            source = EnvSource(prefix='mytool')
+            t.assertEqual('a namespaced value', source.get('value'))
