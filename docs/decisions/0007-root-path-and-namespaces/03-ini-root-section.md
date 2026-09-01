@@ -1,0 +1,104 @@
+# The INI root section
+
+Date: 2026-09-01
+Status: Accepted
+
+## Context
+
+`configparser` has no unnamed section, and `[]` is not a legal header. TOML
+and YAML hold root keys natively: with an empty path, both resolve a key
+declared on the root schema. INI does not, and the guide documents the
+limit.
+
+Child namespaces already resolve in INI, so only keys declared directly on
+the root schema lack a home. Once
+[an absent path is the root](01-absent-path-mounts-at-root.md), the empty
+path is the ordinary case, and one file format would fail to express a
+schema that the other two express. The format would then constrain the
+schema.
+
+## Decision
+
+`IniSource` maps an empty path to the section `/ROOT/`.
+
+```ini
+[/ROOT/]
+name = demo
+
+[server]
+host = localhost
+```
+
+The mapping is INI-only. TOML and YAML keep their native root and receive
+no reserved name. The section is documented as not recommended; it exists
+for parity between the file formats.
+
+No `root_section=` argument ships on any file source.
+
+## Options considered
+
+### A fixed `/ROOT/` section, INI only (chosen)
+
+- `configparser` accepts `/` in a header, so the section parses and holds
+  its own keys [pro]
+- A path built from Python identifiers never produces the name, so it
+  cannot shadow a namespace a user wants [pro]
+- The reserved name stays inside the one format that needs it and never
+  enters the path vocabulary [pro]
+- Section names are case-sensitive, so `[/root/]` misses in silence [con]
+
+### A `root_section=` argument
+
+- The project names the section, and no reserved word ships [pro]
+- The only reading that keeps a nested namespace inside its project
+  prefixes every path the source receives, which reproduces `path=`
+  exactly [con]
+- The other reading names the root section alone, and leaves nested
+  namespaces in sections no project owns [con]
+- It is INI-only, so a TOML or YAML project has no matching spelling [con]
+
+### No root section; INI holds no root keys
+
+- The status quo: documented, and no code [pro]
+- INI alone cannot express a schema with a root-level key, so the choice of
+  file format changes what the schema may declare [con]
+
+### The `[DEFAULT]` section
+
+- `configparser` supplies it, so no name is invented [pro]
+- Its keys inherit into every section, so one root key shadows the same key
+  in every namespace [con]
+- It never appears in `sections()`, so it is invisible to a reader of the
+  file [con]
+
+## Rationale
+
+This is parity, not a recommendation. A project with its own INI file
+mounts under its own name and never writes the section. The section exists
+so that no schema becomes unreadable purely because the file is INI.
+
+A per-source name for the same namespace was the alternative worth taking
+seriously, and it fails on duplication. `path=` is the project-wide mount
+point already, and it reaches every source through the frozen
+`get(key, path)` parameter that
+[ADR 0002](../0002-get-path-parameter.md) settled. A second spelling of the
+same namespace, per source and per format, adds a name that must be kept in
+step with the first and adds no capability.
+
+`/ROOT/` is the only safe fixed literal. `bat` and `conf` are names a user
+may legitimately want for a namespace, and `configparser` offers no escape
+from the collision. `[DEFAULT]` is worse than a collision: it is a channel
+between sections.
+
+## Consequences
+
+- INI, TOML and YAML agree at the root. A schema with root-level keys reads
+  from any of the three.
+- `[/ROOT/]` is case-sensitive. `[/root/]` does not resolve.
+- The guide documents the section as format parity and directs a project
+  with a dedicated INI file to mount under its own name instead.
+- In a shared file, `[/ROOT/]` belongs to no project, exactly as the file
+  root does. See
+  [the format and environment contract](05-format-environment-contract.md).
+- No file source gains a namespace argument. `path=` stays the one mount
+  point.
