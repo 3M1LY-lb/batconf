@@ -135,6 +135,9 @@ v0.5.0; use ``path`` instead:
 The file sources ``IniSource``, ``TomlSource`` and ``YamlSource`` accept
 ``path`` only and raise ``TypeError`` if given ``module``.
 
+``EnvSource.env_name`` deprecates ``module`` on the same schedule. Its
+second parameter is now ``path``.
+
 The ``Protocol``- and ``Proto``-suffixed type names were removed outright
 from the modules that used to export them, so update those imports:
 

@@ -22,12 +22,6 @@ class EnvConfigDeprecationTests(TestCase):
             t.assertIs(alias, env_module.EnvSource)
 
 
-_ENV_NAME_MODULE_WARNING = (
-    "the 'module' keyword argument to .env_name() is deprecated and will "
-    "be removed in v0.5.0; use 'path' instead."
-)
-
-
 class EnvNameModuleDeprecationTests(TestCase):
     """module= is the pre-0.4 name for env_name's path argument."""
 
@@ -43,7 +37,10 @@ class EnvNameModuleDeprecationTests(TestCase):
             t.assertEqual(1, len(caught))
             t.assertIs(caught[0].category, DeprecationWarning)
             t.assertEqual(
-                _ENV_NAME_MODULE_WARNING, str(caught[0].message)
+                "the 'module' keyword argument to .env_name() is "
+                "deprecated and will be removed in v0.5.0; use 'path' "
+                'instead.',
+                str(caught[0].message),
             )
 
         with t.subTest('path= builds the same name, no warning'):

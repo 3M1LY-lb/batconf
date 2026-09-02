@@ -66,7 +66,7 @@ class EnvSource(SourceInterfaceP):
         The ``module`` keyword is deprecated. It maps onto ``path`` and is
         removed in v0.5.0.
         """
-        path = deprecated_module(path, module, method='.env_name()')
+        path = deprecated_module(path, module, method='env_name')
         parts = (
             self._prefix_parts(path)
             + (path.split('.') if path else [])

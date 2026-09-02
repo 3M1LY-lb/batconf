@@ -8,24 +8,20 @@ import warnings
 
 
 def deprecated_module(
-    path: str | None, module: str | None, method: str = '.get()'
+    path: str | None, module: str | None, method: str = 'get'
 ) -> str | None:
-    """Map the deprecated ``module`` keyword of ``method`` onto ``path``.
+    """Map the deprecated ``module`` keyword of a method onto ``path``.
 
     The ``module`` keyword argument is deprecated in v0.4.0 and removed in
     v0.5.0; ``path`` is its replacement. When ``module`` is supplied a
     ``DeprecationWarning`` is emitted and its value is used only if ``path``
-    was not also given.
-
-    Parameters
-    ----------
-    method : str, default='.get()'
-        Name of the deprecating method, quoted in the warning.
+    was not also given. ``method`` names the deprecating method, which must
+    call this function directly: the warning points two frames up.
     """
     if module is not None:
         warnings.warn(
-            f"the 'module' keyword argument to {method} is deprecated and "
-            "will be removed in v0.5.0; use 'path' instead.",
+            f"the 'module' keyword argument to .{method}() is deprecated "
+            "and will be removed in v0.5.0; use 'path' instead.",
             DeprecationWarning,
             stacklevel=3,
         )

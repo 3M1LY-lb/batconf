@@ -116,5 +116,5 @@ class EnvNameModuleDeprecationTests(TestCase):
 
         t.assertEqual('MYTOOL_SERVER_KEY', t.es.env_name('key', module='m'))
         t.deprecated_module.assert_called_once_with(
-            None, 'm', method='.env_name()'
+            None, 'm', method='env_name'
         )

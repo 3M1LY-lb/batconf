@@ -38,7 +38,7 @@ class DeprecatedModuleTests(TestCase):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
             result = deprecated_module(
-                path=None, module='a.b', method='.env_name()'
+                path=None, module='a.b', method='env_name'
             )
         t.assertEqual(result, 'a.b')
         t.assertEqual(
