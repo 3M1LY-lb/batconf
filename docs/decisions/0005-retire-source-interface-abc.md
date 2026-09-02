@@ -5,83 +5,75 @@ Status: Accepted
 
 ## Context
 
-Two names express one contract — "an object with
-`get(key, path) -> str | None`":
+batconf names one source contract twice:
 
 - `SourceInterfaceP`, a `Protocol` in `batconf.sources.types`
-- `SourceInterface`, an `ABCMeta` class in `batconf.source`
+- `SourceInterface`, an abstract base class in `batconf.source`
 
-Foundational ADR 07 blessed the Protocol as canonical and recorded the ABC
-as a pragmatic workaround for mypy false positives, to be removed "once the
-underlying type-checker limitations are resolved". It set no date, so the
-duality persisted and spread: the file sources subclass the Protocol while
-the environment and namespace sources subclassed the ABC, and the user
-guide taught the ABC as a supported extension point.
+Foundational ADR 07 made the Protocol canonical and kept the ABC as a
+workaround for mypy false positives, to go once the type checker caught
+up. It set no date. The duality spread: the file sources declared the
+Protocol, the environment and namespace sources subclassed the ABC, and
+the user guide taught the ABC as the extension point.
 
-Two costs follow. Contributors meet two answers to one question. More
-seriously, `SourceInterface` is public API: leaving it in place through the
-1.0 freeze turns a workaround into a permanent compatibility promise.
-
-The type-checker limitation that motivated the ABC no longer reproduces.
+The mypy limitation no longer reproduces. The ABC is public API, so a
+workaround that survives the 1.0 freeze becomes a permanent promise.
 
 ## Decision
 
-`SourceInterfaceP` is the sole source extension point. The built-in
-sources all declare it, `SourceInterface` emits a `DeprecationWarning`
-naming v0.5.0 as its removal version, and the guide and introduction teach
-the Protocol only.
+`SourceInterfaceP` is the only source extension point. Every built-in
+source declares it. `SourceInterface` emits a `DeprecationWarning` that
+names v0.5.0 as its removal version. The guide and the introduction
+teach the Protocol only.
 
-Classes already scheduled for removal in v0.5.0 keep the ABC as their base
-through a private alias, so importing them raises no warning for a defect
-their users cannot fix.
+Classes that v0.5.0 already removes keep the ABC as their base through
+a private alias. Importing them raises no warning for a defect their
+users cannot fix.
 
 ## Options considered
 
-### Deprecate the ABC, bless `SourceInterfaceP` (chosen)
+### Deprecate the ABC, keep `SourceInterfaceP` (chosen)
 
 - One documented extension point before the 1.0 freeze [pro]
-- Custom sources stay decoupled: no inheritance required [pro]
-- Completes the direction foundational ADR 07 already set [pro]
-- Code that subclasses the ABC must change before v0.5.0 [con]
+- Custom sources need no batconf base class [pro]
+- Completes the direction ADR 07 set [pro]
+- Subclasses of the ABC must change before v0.5.0 [con]
 
-### Keep both indefinitely
+### Keep both
 
-- No migration for existing subclassers [pro]
-- Freezes a documented workaround into the 1.0 contract [con]
-- Contributors keep meeting two answers to one question [con]
+- No migration for existing subclasses [pro]
+- Freezes a workaround into the 1.0 contract [con]
+- Two answers to one question, for every contributor [con]
 
-### Bless the ABC, drop the Protocol
+### Keep the ABC, drop the Protocol
 
-- Type checkers have no ambiguity [pro]
-- Forces third-party sources to inherit from batconf internals [con]
+- No ambiguity for type checkers [pro]
+- Every third-party source must inherit from batconf [con]
 - Reverses ADR 07 and rewrites every file source [con]
 
 ## Rationale
 
-The Protocol states the real contract: batconf calls `get`, and nothing
-else. Requiring inheritance to express that couples every third-party
-source to a batconf import for no checking the Protocol does not already
-provide.
+The Protocol states the real contract: batconf calls `get` and nothing
+else. Inheritance adds a batconf import to every third-party source and
+checks nothing the Protocol does not.
 
-Timing decides the rest. The extension point is what third-party sources
-build against, so it must be settled before the API freezes. The adopted
-deprecation policy — deprecate and document in a patch release, remove in
-the next minor — makes v0.4.1 the last patch line before v0.5.0, so the
-warning ships now or the ABC survives into 1.0 by default.
+Timing forces the decision now. The deprecation policy deprecates in a
+patch release and removes in the next minor. v0.4.1 is the last patch
+release before v0.5.0, so the warning ships now or the ABC survives
+into 1.0.
 
-Keeping the deprecated classes on the ABC through a private alias is
-deliberate. They are removed in the same release as the ABC itself, so
-migrating them would create churn and emit warnings that point users at a
-base class they never chose.
+The private alias for the deprecated classes avoids churn. Those
+classes leave in the same release as the ABC. Migrating them first
+would emit warnings that point users at a base class they never chose.
 
 ## Consequences
 
 - `from batconf.source import SourceInterface` emits a
-  `DeprecationWarning`. The name still resolves to the ABC, so existing
-  subclasses keep working until v0.5.0.
-- Custom sources need no base class. Those wanting type-checker
-  enforcement subclass `SourceInterfaceP` instead.
-- v0.5.0 removes `SourceInterface`. The private alias and the deprecated
-  classes holding it go in the same release.
-- `isinstance` checks against `SourceInterface` must move to
+  `DeprecationWarning`. The name still resolves, so existing subclasses
+  work until v0.5.0.
+- Custom sources need no base class. A source that wants type-checker
+  enforcement subclasses `SourceInterfaceP`.
+- `isinstance` checks against `SourceInterface` move to
   `SourceInterfaceP`, which is `runtime_checkable`.
+- v0.5.0 removes `SourceInterface`, the private alias, and the
+  deprecated classes that hold it.
