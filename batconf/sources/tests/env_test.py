@@ -39,21 +39,21 @@ class TestEnvSource(TestCase):
         with t.subTest('the prefix leads a dotted key'):
             t.assertEqual(t.es.env_name('path.to.key'), 'MYTOOL_PATH_TO_KEY')
 
-        with t.subTest('the prefix leads the module path'):
+        with t.subTest('the prefix leads the config path'):
             t.assertEqual(
-                t.es.env_name('key', module='module'), 'MYTOOL_MODULE_KEY'
+                t.es.env_name('key', path='module'), 'MYTOOL_MODULE_KEY'
             )
 
-        with t.subTest('module and key paths'):
+        with t.subTest('path and key paths'):
             t.assertEqual(
-                t.es.env_name('to.key', module='module.path'),
+                t.es.env_name('to.key', path='module.path'),
                 'MYTOOL_MODULE_PATH_TO_KEY',
             )
 
         with t.subTest('prefix=None declares no namespace'):
             source = EnvSource(prefix=None)
             t.assertEqual(
-                source.env_name('key', module='server'), 'SERVER_KEY'
+                source.env_name('key', path='server'), 'SERVER_KEY'
             )
             t.assertEqual(source.env_name('key'), 'KEY')
 
@@ -84,10 +84,10 @@ class BatPrefixDeprecationTests(TestCase):
                 stacklevel=4,
             )
 
-        with t.subTest('a module path resolves unprefixed, and does not warn'):
+        with t.subTest('a declared path resolves unprefixed, no warning'):
             t.warnings.reset_mock()
             t.assertEqual(
-                'SERVER_HOST', t.es.env_name('host', module='server')
+                'SERVER_HOST', t.es.env_name('host', path='server')
             )
             t.warnings.warn.assert_not_called()
 
@@ -97,4 +97,24 @@ class BatPrefixDeprecationTests(TestCase):
             "be removed in v0.5.0; pass prefix='BAT' to keep it, or "
             'prefix=None for no prefix.',
             _BAT_PREFIX_DEPRECATION,
+        )
+
+
+class EnvNameModuleDeprecationTests(TestCase):
+    """env_name routes its deprecated module keyword through the shim."""
+
+    deprecated_module: Mock
+
+    def setUp(t) -> None:
+        patcher = patch(f'{SRC}.deprecated_module', autospec=True)
+        t.deprecated_module = patcher.start()
+        t.addCleanup(patcher.stop)
+        t.es = EnvSource(prefix='mytool')
+
+    def test_env_name(t):
+        t.deprecated_module.return_value = 'server'
+
+        t.assertEqual('MYTOOL_SERVER_KEY', t.es.env_name('key', module='m'))
+        t.deprecated_module.assert_called_once_with(
+            None, 'm', method='.env_name()'
         )

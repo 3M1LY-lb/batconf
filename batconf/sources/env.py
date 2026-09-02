@@ -53,12 +53,23 @@ class EnvSource(SourceInterfaceP):
         module: str | None = None,
     ) -> str | None:
         path = deprecated_module(path, module)
-        return os.getenv(self.env_name(key, path))
+        return os.getenv(self.env_name(key, path=path))
 
-    def env_name(self, key: str, module: str | None = None) -> str:
+    def env_name(
+        self,
+        key: str,
+        path: str | None = None,
+        module: str | None = None,
+    ) -> str:
+        """Return the environment variable name for ``key`` under ``path``.
+
+        The ``module`` keyword is deprecated. It maps onto ``path`` and is
+        removed in v0.5.0.
+        """
+        path = deprecated_module(path, module, method='.env_name()')
         parts = (
-            self._prefix_parts(module)
-            + (module.split('.') if module else [])
+            self._prefix_parts(path)
+            + (path.split('.') if path else [])
             + key.split('.')
         )
         return '_'.join(parts).upper()
