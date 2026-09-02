@@ -312,6 +312,7 @@ class YamlConfigTests(TestCase):
                     'api_key'
                 ],
             )
+
         with t.subTest('a dotted key under a module'):
             t.assertEqual(
                 conf.get('remote_host.api_key', module='bat'),

@@ -214,6 +214,7 @@ class TomlSourceTests(TestCase):
                 ts.get('api_key', path='bat.remote_host'),
                 LOADED_ENV_DICT['test']['bat']['remote_host']['api_key'],
             )
+
         with t.subTest('a dotted key under a path'):
             t.assertEqual(
                 ts.get('remote_host.api_key', path='bat'),
