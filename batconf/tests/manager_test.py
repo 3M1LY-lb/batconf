@@ -255,8 +255,10 @@ class ModulePathDeprecationTests(TestCase):
             t.warnings.warn.assert_not_called()
 
     def test__MODULE_PATH_DEPRECATION(t):
-        with t.subTest('names the argument that replaces it'):
-            t.assertIn('path=', _MODULE_PATH_DEPRECATION)
-
-        with t.subTest('names the removal version'):
-            t.assertIn('v0.5.0', _MODULE_PATH_DEPRECATION)
+        t.assertEqual(
+            'the schema module name as the default config path is '
+            'deprecated and will be removed in v0.5.0; pass path= '
+            'explicitly to keep that namespace, or omit it to mount the '
+            'schema at the root.',
+            _MODULE_PATH_DEPRECATION,
+        )
