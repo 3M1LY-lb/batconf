@@ -156,6 +156,12 @@ class YamlSourceTests(TestCase):
                 'example_api_key',
             )
 
+        with t.subTest('a dotted key under a path'):
+            t.assertEqual(
+                t.ys.get('remote_host.api_key', path='bat'),
+                'example_api_key',
+            )
+
         with t.subTest('missing key returns None'):
             t.assertIsNone(t.ys.get('nonexistent'))
 
@@ -306,6 +312,14 @@ class YamlConfigTests(TestCase):
                     'api_key'
                 ],
             )
+        with t.subTest('a dotted key under a module'):
+            t.assertEqual(
+                conf.get('remote_host.api_key', module='bat'),
+                EXAMPLE_CONFIG_DICT['example']['bat']['remote_host'][
+                    'api_key'
+                ],
+            )
+
         with t.subTest('missing item'):
             t.assertEqual(conf.get('_sir_not_appearing_in_this_film'), None)
 
