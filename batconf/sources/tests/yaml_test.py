@@ -571,9 +571,9 @@ class YamlImportErrorMessageTests(TestCase):
     """_YAML_IMPORT_ERROR_MSG tells the user how to install pyyaml."""
 
     def test__YAML_IMPORT_ERROR_MSG(t):
-        with t.subTest('names the current source class'):
-            t.assertIn('YamlSource', _YAML_IMPORT_ERROR_MSG)
-            t.assertNotIn('YamlConfig', _YAML_IMPORT_ERROR_MSG)
-
-        with t.subTest('sentences are separated'):
-            t.assertIn('`pip install pyyaml`. Or', _YAML_IMPORT_ERROR_MSG)
+        t.assertEqual(
+            'PyYAML is required to use YamlSource. '
+            'Please install it using `pip install pyyaml`. '
+            'Or as an optional extra using `pip install batconf[yaml]`.',
+            _YAML_IMPORT_ERROR_MSG,
+        )

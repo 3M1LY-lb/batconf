@@ -418,8 +418,9 @@ class TomlImportErrorMessageTests(TestCase):
     """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
 
     def test__TOML_IMPORT_ERROR_MSG(t):
-        with t.subTest('sentence break is capitalized'):
-            t.assertIn(
-                'required. Install the optional extra',
-                _TOML_IMPORT_ERROR_MSG,
-            )
+        t.assertEqual(
+            'Failed to import toml.load,'
+            ' for python < 3.11, the toml package is required.'
+            ' Install the optional extra batconf[toml]',
+            _TOML_IMPORT_ERROR_MSG,
+        )
