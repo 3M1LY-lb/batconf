@@ -34,6 +34,19 @@ class DeprecatedModuleTests(TestCase):
         t.assertIs(w[0].category, DeprecationWarning)
         t.assertEqual(_MODULE_WARNING, str(w[0].message))
 
+    def test_method_names_the_deprecating_method(t):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            result = deprecated_module(
+                path=None, module='a.b', method='env_name'
+            )
+        t.assertEqual(result, 'a.b')
+        t.assertEqual(
+            "the 'module' keyword argument to .env_name() is deprecated "
+            "and will be removed in v0.5.0; use 'path' instead.",
+            str(w[0].message),
+        )
+
     def test_path_wins_when_both_supplied(t):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
