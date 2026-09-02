@@ -412,7 +412,11 @@ class get_file_pathTests(TestCase):
 
         t.missing_file = MagicMock(spec=_PathClass, name='missing_file')
         t.missing_file.is_file.return_value = False
+        t.missing_file.__str__.return_value = 'missing.config.yaml'
         t.missing_file.resolve.return_value.is_file.return_value = False
+        t.missing_file.resolve.return_value.__str__.return_value = (
+            '/resolved/missing.config.yaml'
+        )
 
         patches = [
             'Path',
@@ -453,7 +457,12 @@ class get_file_pathTests(TestCase):
                 when_missing='error',
             )
 
-        t.assertIn('Could not find Yaml Config file.', str(err.exception))
+        t.assertEqual(
+            'Could not find Yaml Config file.'
+            ' Using absolute path: missing.config.yaml'
+            ' or relative path: /resolved/missing.config.yaml.',
+            str(err.exception),
+        )
 
     def test_missing_ignore(t):
         t.Path.return_value = t.missing_file
