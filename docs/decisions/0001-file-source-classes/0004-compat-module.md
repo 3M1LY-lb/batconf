@@ -1,7 +1,7 @@
 # ADR 0004 — `_compat.py` shared deprecation utility
 
 Date: 2026-05-14
-Status: Proposed
+Status: Accepted
 Branch: feature/file-sources
 Issue: #193
 
@@ -34,7 +34,8 @@ def make_deprecated_getattr(
     deprecated: dict[str, str],  # {old_name: display_new_name}
     module_globals: dict,
     module_name: str,
-    targets: dict[str, str] | None = None  # {old_name: globals_key_to_return}
+    targets: dict[str, str] | None = None,  # {old_name: globals_key_to_return}
+    messages: dict[str, str] | None = None,  # {old_name: full_warning_text}
 ):
 ```
 
@@ -73,3 +74,13 @@ is looked up in `module_globals` to find the object to return. When omitted,
   `make_deprecated_getattr` call; no logic needs to be duplicated.
 - The `targets` parameter allows the warning message to say `"use 'IniSource'"
   while still returning the legacy `_IniConfig` wrapper class.
+
+Amended 2026-08-29. Two changes follow the adopted deprecation policy
+(deprecate in a patch release, remove in the next minor):
+
+- The default message names the removal version: `"'X' is deprecated and
+  will be removed in v0.5.0; use 'Y' instead."`
+- A `messages` parameter replaces the whole message for a name with no
+  drop-in replacement, such as `DataclassConfig`, whose advice is to delete
+  the source-list entry rather than to use a successor. Text passed this way
+  must name the removal version itself.

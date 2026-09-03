@@ -228,7 +228,7 @@ graphviz = "*"
 # conf.py imports diagram_config_comp from the source dir, so build with the
 # module runner from docs/source (cwd lands on sys.path, matching ReadTheDocs).
 [tool.pixi.feature.docs.tasks]
-docs = { cmd = "python -m sphinx -b html . ../build/html", cwd = "docs/source" }
+docs = { cmd = "python -m sphinx -W -b html . ../build/html", cwd = "docs/source" }
 
 [tool.pixi.feature.test.tasks]
 test = "pytest batconf && pytest --no-cov tests"
