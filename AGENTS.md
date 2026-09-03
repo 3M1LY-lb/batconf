@@ -30,3 +30,6 @@ future release.
 - Full matrix (parallel, minimal output): `nox -s parallel -- -q`
   Avoid raw `nox -p` — it interleaves all sessions and is very noisy.
 - Targeted runs during development: `python -m pytest <paths>`.
+- Mutation coverage, before a PR goes to review: `pixi run mutation`.
+  Report the caught and survived counts in the PR. Survivors measure test
+  strength; fixing every one is not required.
