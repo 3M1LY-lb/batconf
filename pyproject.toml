@@ -96,6 +96,7 @@ docs = [
     'sphinxext-opengraph',
     'sphinx_design',
     'sphinx-rtd-theme',
+    'ipython-pygments-lexers', # the ipythonconsole lexer
     'matplotlib', # for social preview cards
     'diagrams',
 ]
