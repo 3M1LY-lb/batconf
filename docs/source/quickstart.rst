@@ -201,7 +201,7 @@ Usage
 
 Access config option values using python's attribute (``.``) notation.
 
-.. code-block:: python
+.. code-block:: text
 
     In [1]: cfg = get_config()
 
@@ -225,7 +225,7 @@ Subscript Access
 notation, which is equivalent to attribute access. This is useful when the
 key is a runtime variable.
 
-.. code-block:: python
+.. code-block:: text
 
     In [4]: cfg['server']['host']
     Out[4]: '0.0.0.0'
