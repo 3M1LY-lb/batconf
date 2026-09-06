@@ -1,7 +1,7 @@
 from unittest import TestCase
 from dataclasses import dataclass
 
-from ..dataclass import DataclassConfig
+from ..dataclass import _DataclassConfig
 
 
 class TestDataclassConfig(TestCase):
@@ -27,7 +27,7 @@ class TestDataclassConfig(TestCase):
 
         GlobalConfig.__module__ = 'bat'
 
-        conf = DataclassConfig(GlobalConfig)
+        conf = _DataclassConfig(GlobalConfig)
 
         with t.subTest('single key'):
             t.assertEqual(conf.get('config_file'), './GlobalConfig.yaml')
@@ -70,4 +70,4 @@ class TestDataclassConfig(TestCase):
 
         with t.subTest('get sub-config returns a DataclassConfig object'):
             # TODO: This may be a bug, and needs to be investigated further
-            t.assertIsInstance(conf.get('TestModule'), DataclassConfig)
+            t.assertIsInstance(conf.get('TestModule'), _DataclassConfig)

@@ -1,62 +1,120 @@
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from ..env import EnvConfig
+from ..env import _BAT_PREFIX_DEPRECATION, EnvSource
 
 
 SRC = 'batconf.sources.env'
 
 
-class TestEnvConfig(TestCase):
+class TestEnvSource(TestCase):
+    def setUp(t) -> None:
+        t.es = EnvSource(prefix='mytool')
+
     @patch.dict(
         f'{SRC}.os.environ',
         {
-            'BAT_CONFIG_FILE': 'example.config.yaml',
-            'BAT_MODULE_KEY': 'value',
-            'BAT_MODULE_PATH_TO_KEY': 'value2',
+            'MYTOOL_CONFIG_FILE': 'example.config.yaml',
+            'MYTOOL_MODULE_KEY': 'value',
+            'MYTOOL_MODULE_PATH_TO_KEY': 'value2',
         },
     )
     def test_get(t):
-        conf = EnvConfig()
-
         with t.subTest('single key'):
-            t.assertEqual(conf.get('config_file'), 'example.config.yaml')
+            t.assertEqual(t.es.get('config_file'), 'example.config.yaml')
 
         with t.subTest('missing value'):
-            t.assertEqual(conf.get('remote_host'), None)
+            t.assertEqual(t.es.get('remote_host'), None)
 
         with t.subTest('path value'):
-            t.assertEqual(conf.get('key', path='bat.module'), 'value')
+            t.assertEqual(t.es.get('key', path='module'), 'value')
+
+        with t.subTest('path and key paths'):
+            t.assertEqual(t.es.get('to.key', path='module.path'), 'value2')
+
+    def test_env_name(t):
+        with t.subTest('the prefix leads a bare key'):
+            t.assertEqual(t.es.env_name('key'), 'MYTOOL_KEY')
+
+        with t.subTest('the prefix leads a dotted key'):
+            t.assertEqual(t.es.env_name('path.to.key'), 'MYTOOL_PATH_TO_KEY')
+
+        with t.subTest('the prefix leads the config path'):
+            t.assertEqual(
+                t.es.env_name('key', path='module'), 'MYTOOL_MODULE_KEY'
+            )
 
         with t.subTest('path and key paths'):
             t.assertEqual(
-                conf.get('to.key', path='bat.module.path'), 'value2'
+                t.es.env_name('to.key', path='module.path'),
+                'MYTOOL_MODULE_PATH_TO_KEY',
             )
 
-    def test_env_name(t):
-        conf = EnvConfig()
-
-        with t.subTest('single key'):
-            t.assertEqual(conf.env_name('key'), 'BAT_KEY')
-
-        with t.subTest('path key'):
-            t.assertEqual(conf.env_name('path.to.key'), 'BAT_PATH_TO_KEY')
-
-        with t.subTest('single key from module'):
+        with t.subTest('prefix=None declares no namespace'):
+            source = EnvSource(prefix=None)
             t.assertEqual(
-                conf.env_name('key', module='bat.module'), 'BAT_MODULE_KEY'
+                source.env_name('key', path='server'), 'SERVER_KEY'
             )
-
-        with t.subTest('module and key paths'):
-            t.assertEqual(
-                conf.env_name('to.key', module='bat.module.path'),
-                'BAT_MODULE_PATH_TO_KEY',
-            )
+            t.assertEqual(source.env_name('key'), 'KEY')
 
     def test___str__(t) -> None:
-        source = EnvConfig()
-        t.assertEqual(f'Environment Variables: {repr(source)}', str(source))
+        t.assertEqual(f'Environment Variables: {repr(t.es)}', str(t.es))
 
     def test___repr__(t) -> None:
-        source = EnvConfig()
-        t.assertEqual('EnvConfig()', repr(source))
+        t.assertEqual('EnvSource()', repr(t.es))
+
+
+class BatPrefixDeprecationTests(TestCase):
+    """An undeclared prefix keeps the BAT prefix, and warns."""
+
+    warnings: Mock
+
+    def setUp(t) -> None:
+        patcher = patch(f'{SRC}.warnings', autospec=True)
+        t.warnings = patcher.start()
+        t.addCleanup(patcher.stop)
+        t.es = EnvSource()  # prefix undeclared: pre-0.5.0 behaviour
+
+    def test_env_name(t):
+        with t.subTest('an empty path keeps the BAT prefix, and warns'):
+            t.assertEqual('BAT_KEY', t.es.env_name('key'))
+            t.warnings.warn.assert_called_once_with(
+                _BAT_PREFIX_DEPRECATION,
+                DeprecationWarning,
+                stacklevel=4,
+            )
+
+        with t.subTest('a declared path resolves unprefixed, no warning'):
+            t.warnings.reset_mock()
+            t.assertEqual(
+                'SERVER_HOST', t.es.env_name('host', path='server')
+            )
+            t.warnings.warn.assert_not_called()
+
+    def test__BAT_PREFIX_DEPRECATION(t):
+        t.assertEqual(
+            "the implicit 'BAT' environment prefix is deprecated and will "
+            "be removed in v0.5.0; pass prefix='BAT' to keep it, or "
+            'prefix=None for no prefix.',
+            _BAT_PREFIX_DEPRECATION,
+        )
+
+
+class EnvNameModuleDeprecationTests(TestCase):
+    """env_name routes its deprecated module keyword through the shim."""
+
+    deprecated_module: Mock
+
+    def setUp(t) -> None:
+        patcher = patch(f'{SRC}.deprecated_module', autospec=True)
+        t.deprecated_module = patcher.start()
+        t.addCleanup(patcher.stop)
+        t.es = EnvSource(prefix='mytool')
+
+    def test_env_name(t):
+        t.deprecated_module.return_value = 'server'
+
+        t.assertEqual('MYTOOL_SERVER_KEY', t.es.env_name('key', module='m'))
+        t.deprecated_module.assert_called_once_with(
+            None, 'm', method='env_name'
+        )

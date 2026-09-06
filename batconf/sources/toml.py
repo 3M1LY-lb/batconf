@@ -6,12 +6,11 @@ from pathlib import Path
 from enum import Enum, auto
 
 from .file import (
-    ConfigFileFormats,
     _MissingFileOption,
     missing_file_handlers as _missing_file_handlers,
     file_config_repr,
 )
-from .types import FileSourceP
+from .types import ConfigFileFormats, FileSourceP
 from ._compat import make_deprecated_getattr
 
 
@@ -165,7 +164,7 @@ def _import_toml_load_function():
 _TOML_IMPORT_ERROR_MSG = (
     'Failed to import toml.load,'
     ' for python < 3.11, the toml package is required.'
-    ' install the optional extra batconf[toml]'
+    ' Install the optional extra batconf[toml]'
 )
 
 # === TomlConfig (deprecated) === #

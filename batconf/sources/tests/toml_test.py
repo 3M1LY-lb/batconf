@@ -10,7 +10,6 @@ from unittest.mock import (
 
 from pathlib import Path as _PathClass
 
-import warnings
 
 from ..toml import (
     TomlSource,
@@ -215,6 +214,13 @@ class TomlSourceTests(TestCase):
                 ts.get('api_key', path='bat.remote_host'),
                 LOADED_ENV_DICT['test']['bat']['remote_host']['api_key'],
             )
+
+        with t.subTest('a dotted key under a path'):
+            t.assertEqual(
+                ts.get('remote_host.api_key', path='bat'),
+                LOADED_ENV_DICT['test']['bat']['remote_host']['api_key'],
+            )
+
         with t.subTest('missing item'):
             t.assertEqual(ts.get('_sir_not_appearing_in_this_film'), None)
 
@@ -287,8 +293,7 @@ class TomlSourceTests(TestCase):
 
 class DeprecationTests(TestCase):
     def test_TomlConfig_is_TomlSource_subclass(t):
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', DeprecationWarning)
+        with t.assertWarns(DeprecationWarning):
             result = __getattr__('TomlConfig')
         t.assertTrue(issubclass(result, TomlSource))
 
@@ -414,3 +419,15 @@ class ImportTomlLoadFunctionTests(TestCase):
     def test__import_toml_load_function_with_toml(t):
         load = _import_toml_load_function()
         t.assertIs(sentinel.toml_load, load)
+
+
+class TomlImportErrorMessageTests(TestCase):
+    """_TOML_IMPORT_ERROR_MSG tells the user how to install the toml extra."""
+
+    def test__TOML_IMPORT_ERROR_MSG(t):
+        t.assertEqual(
+            'Failed to import toml.load,'
+            ' for python < 3.11, the toml package is required.'
+            ' Install the optional extra batconf[toml]',
+            _TOML_IMPORT_ERROR_MSG,
+        )

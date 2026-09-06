@@ -34,6 +34,19 @@ class DeprecatedModuleTests(TestCase):
         t.assertIs(w[0].category, DeprecationWarning)
         t.assertEqual(_MODULE_WARNING, str(w[0].message))
 
+    def test_method_names_the_deprecating_method(t):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            result = deprecated_module(
+                path=None, module='a.b', method='env_name'
+            )
+        t.assertEqual(result, 'a.b')
+        t.assertEqual(
+            "the 'module' keyword argument to .env_name() is deprecated "
+            "and will be removed in v0.5.0; use 'path' instead.",
+            str(w[0].message),
+        )
+
     def test_path_wins_when_both_supplied(t):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
@@ -57,7 +70,7 @@ class MakeDeprecatedGetAttrTests(TestCase):
         )
 
     def test_returns_new_class(t):
-        with warnings.catch_warnings(record=True):
+        with t.assertWarns(DeprecationWarning):
             result = t.dga('OldName')
         t.assertIs(result, sentinel.NewClass)
 
@@ -67,7 +80,8 @@ class MakeDeprecatedGetAttrTests(TestCase):
             t.dga('OldName')
         t.assertIs(w[0].category, DeprecationWarning)
         t.assertEqual(
-            f"'OldName' is deprecated, use 'NewName' instead.",
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            "use 'NewName' instead.",
             str(w[0].message)
             )
 
@@ -99,6 +113,29 @@ class MakeDeprecatedGetAttrTests(TestCase):
 
         t.assertIs(result, sentinel.LegacyClass)
         t.assertEqual(
-            "'OldName' is deprecated, use 'NewName' instead.",
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            "use 'NewName' instead.",
+            str(w[0].message),
+        )
+
+    def test_advice_replaces_the_closing_sentence(t):
+        """advice replaces the closing sentence for a deprecated name that
+        has no drop-in replacement, keeping the removal version."""
+        dga = make_deprecated_getattr(
+            deprecated={'OldName': 'NewName'},
+            module_globals=t.module_globals,
+            module_name=t.module_name,
+            advice={'OldName': 'delete it.'},
+        )
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            result = dga('OldName')
+
+        t.assertIs(result, sentinel.NewClass)
+        t.assertIs(w[0].category, DeprecationWarning)
+        t.assertEqual(
+            "'OldName' is deprecated and will be removed in v0.5.0; "
+            'delete it.',
             str(w[0].message),
         )

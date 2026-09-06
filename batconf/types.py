@@ -62,7 +62,8 @@ def __getattr__(name: str):
         import warnings
         new = _deprecated[name]
         warnings.warn(
-            f'{name!r} is deprecated, use {new!r} instead.',
+            f'{name!r} is deprecated and will be removed in v0.5.0; '
+            f'use {new!r} instead.',
             DeprecationWarning,
             stacklevel=2,
         )

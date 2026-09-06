@@ -14,7 +14,7 @@ from pathlib import Path as _PathClass
 from ..yaml import (
     YamlSource,
     EmptyYamlConfig,
-    YamlConfig,
+    _YamlConfig,
     get_file_path,
     _load_yaml,
     _load_yaml_file,
@@ -156,6 +156,12 @@ class YamlSourceTests(TestCase):
                 'example_api_key',
             )
 
+        with t.subTest('a dotted key under a path'):
+            t.assertEqual(
+                t.ys.get('remote_host.api_key', path='bat'),
+                'example_api_key',
+            )
+
         with t.subTest('missing key returns None'):
             t.assertIsNone(t.ys.get('nonexistent'))
 
@@ -214,7 +220,7 @@ class YamlConfigTests(TestCase):
         t.config_file_name = 'example.config.yaml'
         t.default_missing_file_option = 'warn'
 
-        t.yc = YamlConfig(config_file_name=t.config_file_name)
+        t.yc = _YamlConfig(config_file_name=t.config_file_name)
 
     def test___init__(t):
         t.assertEqual(t.yc._missing_file_option, t.default_missing_file_option)
@@ -256,7 +262,7 @@ class YamlConfigTests(TestCase):
             t.assertDictEqual(env_cfg, t.yc._data)
 
         with t.subTest('config environments disabled'):
-            yc = YamlConfig(
+            yc = _YamlConfig(
                 config_file_name=t.config_file_name,
                 enable_config_environments=False,
             )
@@ -267,7 +273,7 @@ class YamlConfigTests(TestCase):
         t.assertEqual('environments', t.yc._file_format)
 
         with t.subTest('config environments disabled'):
-            yc_no_envs = YamlConfig(
+            yc_no_envs = _YamlConfig(
                 config_file_name=t.config_file_name,
                 enable_config_environments=False,
             )
@@ -280,7 +286,7 @@ class YamlConfigTests(TestCase):
         """
         t._load_yaml.return_value = EXAMPLE_CONFIG_WITHOUT_ENV_DICT
 
-        yc = YamlConfig(
+        yc = _YamlConfig(
             config_file_name=t.config_file_name,
             enable_config_environments=False,
         )
@@ -291,7 +297,7 @@ class YamlConfigTests(TestCase):
         )
 
     def test_get(t) -> None:
-        conf = YamlConfig(config_file_name=t.config_file_name)
+        conf = _YamlConfig(config_file_name=t.config_file_name)
 
         with t.subTest('single key'):
             t.assertEqual(
@@ -306,13 +312,22 @@ class YamlConfigTests(TestCase):
                     'api_key'
                 ],
             )
+
+        with t.subTest('a dotted key under a module'):
+            t.assertEqual(
+                conf.get('remote_host.api_key', module='bat'),
+                EXAMPLE_CONFIG_DICT['example']['bat']['remote_host'][
+                    'api_key'
+                ],
+            )
+
         with t.subTest('missing item'):
             t.assertEqual(conf.get('_sir_not_appearing_in_this_film'), None)
 
-    @patch.object(YamlConfig, '_data', new_callable=PropertyMock)
+    @patch.object(_YamlConfig, '_data', new_callable=PropertyMock)
     def test_loads_given_config_file(t, _data_prop: Mock):
         filename = './test_example.config.yaml'
-        _ = YamlConfig(config_file_name=filename)
+        _ = _YamlConfig(config_file_name=filename)
         # The loaded data is sent to the _data property setter
         _data_prop.assert_called_with(t._load_yaml.return_value)
 
@@ -327,7 +342,7 @@ class YamlConfigTests(TestCase):
         )
 
     def test_config_env_argument(t):
-        yc = YamlConfig('./example.config.yaml', config_env='alt')
+        yc = _YamlConfig('./example.config.yaml', config_env='alt')
         t.assertEqual(
             EXAMPLE_CONFIG_DICT['alt']['bat']['module']['key'],
             yc.get('key', module='bat.module'),
@@ -339,7 +354,7 @@ class YamlConfigTests(TestCase):
         """
         t._load_yaml.return_value = DEFAULT_EMPTY_CONFIGFILE_DICT
 
-        yc = YamlConfig(
+        yc = _YamlConfig(
             config_file_name=t.config_file_name, missing_file_option='warn'
         )
 
@@ -351,7 +366,7 @@ class YamlConfigTests(TestCase):
         t.assertEqual(None, yc.get('bat.key'))
 
     def test__getitem__(t):
-        yc = YamlConfig(config_file_name=t.config_file_name)
+        yc = _YamlConfig(config_file_name=t.config_file_name)
 
         with t.subTest('dot notation key path'):
             t.assertEqual(yc['bat.remote_host.api_key'], 'example_api_key')
@@ -361,15 +376,15 @@ class YamlConfigTests(TestCase):
             )
 
     def test_keys(t):
-        yc = YamlConfig(config_file_name=t.config_file_name)
+        yc = _YamlConfig(config_file_name=t.config_file_name)
         t.assertEqual({'bat': None}.keys(), yc.keys())
 
     def test___str__(t) -> None:
-        yc = YamlConfig(config_file_name=t.config_file_name)
+        yc = _YamlConfig(config_file_name=t.config_file_name)
         t.assertEqual(f'Yaml File: {repr(yc)}', str(yc))
 
     def test___repr__(t) -> None:
-        yc = YamlConfig(config_file_name=t.config_file_name)
+        yc = _YamlConfig(config_file_name=t.config_file_name)
         t.assertEqual(
             f'YamlConfig(file_path={t.get_file_path.return_value}, '
             f'config_env=example, missing_file_option=warn, '
@@ -388,8 +403,8 @@ class YamlConfigDeprecationTests(TestCase):
         t.config_file_name = 'example.config.yaml'
 
     def test_enable_config_environments_maps_to_file_format(t):
-        yc_envs = YamlConfig(config_file_name=t.config_file_name)
-        yc_no_envs = YamlConfig(
+        yc_envs = _YamlConfig(config_file_name=t.config_file_name)
+        yc_no_envs = _YamlConfig(
             config_file_name=t.config_file_name,
             enable_config_environments=False,
         )
@@ -412,7 +427,11 @@ class get_file_pathTests(TestCase):
 
         t.missing_file = MagicMock(spec=_PathClass, name='missing_file')
         t.missing_file.is_file.return_value = False
+        t.missing_file.__str__.return_value = 'missing.config.yaml'
         t.missing_file.resolve.return_value.is_file.return_value = False
+        t.missing_file.resolve.return_value.__str__.return_value = (
+            '/resolved/missing.config.yaml'
+        )
 
         patches = [
             'Path',
@@ -447,11 +466,18 @@ class get_file_pathTests(TestCase):
         """
         t.Path.return_value = t.missing_file
 
-        with t.assertRaises(FileNotFoundError):
+        with t.assertRaises(FileNotFoundError) as err:
             _ = get_file_path(
                 file_name=t.config_file_name,
                 when_missing='error',
             )
+
+        t.assertEqual(
+            'Could not find Yaml Config file.'
+            ' Using absolute path: missing.config.yaml'
+            ' or relative path: /resolved/missing.config.yaml.',
+            str(err.exception),
+        )
 
     def test_missing_ignore(t):
         t.Path.return_value = t.missing_file
@@ -554,3 +580,15 @@ class YamlLoaderFunctionsTests(TestCase):
             t.open.side_effect = FileNotFoundError
             with t.assertRaises(FileNotFoundError):
                 _ = _load_yaml_file(file_path=t.file_path)
+
+
+class YamlImportErrorMessageTests(TestCase):
+    """_YAML_IMPORT_ERROR_MSG tells the user how to install pyyaml."""
+
+    def test__YAML_IMPORT_ERROR_MSG(t):
+        t.assertEqual(
+            'PyYAML is required to use YamlSource. '
+            'Please install it using `pip install pyyaml`. '
+            'Or as an optional extra using `pip install batconf[yaml]`.',
+            _YAML_IMPORT_ERROR_MSG,
+        )

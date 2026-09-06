@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from os import path
 
 from batconf.manager import Configuration, SourceList
-from batconf.sources.ini import IniConfig
-from batconf.sources.env import EnvConfig
+from batconf.sources.ini import _IniConfig
+from batconf.sources.env import EnvSource
 
 
 # === Configuration Schema === #
@@ -83,7 +83,7 @@ class FreeFormConfigTreeTests(TestCase):
     def test_environments_config(t) -> None:
         config_file_name = path.join(t.this_dir, 'data', 'envs.config.ini')
 
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='environments'
         )
         t.assertEqual(config_source.get('doc'), 'our testing environment')
@@ -95,7 +95,7 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=RootConfigSchema,
-            # path='project',  # default = 'configuration_test'
+            path='configuration_test',
         )
 
         # A Configuration's _path is used to lookup values from config sources
@@ -148,7 +148,7 @@ class FreeFormConfigTreeTests(TestCase):
 
     def test_sections_config(t) -> None:
         config_file_name = path.join(t.this_dir, 'data', 'sections.config.ini')
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='sections'
         )
         source_list = SourceList([config_source])
@@ -167,12 +167,11 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=ConfigTestSchema,
-            # path='project-name',  # default: 'configuration_test'
+            path='configuration_test',
         )
 
         # NOTE: presently, section-based configs still require a parent section
-        # which should be set to your project's name,
-        # but defaults to the module name
+        # which should be set to your project's name
         t.assertEqual(
             cfg.opt1,
             'sections.config.ini :: configuration_test :: opt1',
@@ -196,7 +195,7 @@ class FreeFormConfigTreeTests(TestCase):
         example_dir = path.dirname(path.realpath(__file__))
         config_file_name = path.join(example_dir, 'data', 'flat.config.ini')
 
-        config_source = IniConfig(
+        config_source = _IniConfig(
             file_path=config_file_name, file_format='flat'
         )
         source_list = SourceList([config_source])
@@ -210,7 +209,7 @@ class FreeFormConfigTreeTests(TestCase):
         cfg = Configuration(
             source_list=source_list,
             config_class=FlatConfigSchema,
-            # path='application',  # path does not affect flat files
+            path='application',  # path does not affect flat files
         )
 
         # options not defined in the schema are accessible
@@ -224,6 +223,24 @@ class FreeFormConfigTreeTests(TestCase):
     @patch.dict(
         'batconf.sources.env.os.environ',
         {
+            'MYTOOL_ROOT_VALUE': 'MYTOOL root config value',
+            'MYTOOL_ROOT_L1A_VALUE': 'MYTOOL level 1 config A value',
+        },
+    )
+    def test_environment_prefix_applies_to_every_lookup(t) -> None:
+        """A caller-declared prefix namespaces the whole tree."""
+        cfg = Configuration(
+            source_list=SourceList([EnvSource(prefix='mytool')]),
+            config_class=RootConfigSchema,
+            path='root',
+        )
+
+        t.assertEqual(cfg.value, 'MYTOOL root config value')
+        t.assertEqual(cfg.l1a.value, 'MYTOOL level 1 config A value')
+
+    @patch.dict(
+        'batconf.sources.env.os.environ',
+        {
             'ROOT_VALUE': 'ENVIRONMENT root config value',
             'ROOT_L1A_VALUE': 'ENVIRONMENT level 1 config A value',
         },
@@ -232,7 +249,7 @@ class FreeFormConfigTreeTests(TestCase):
         """REF: github #2
         """
         cfg = Configuration(
-            source_list=SourceList([EnvConfig()]),
+            source_list=SourceList([EnvSource()]),
             config_class=RootConfigSchema,
             path='root',
         )

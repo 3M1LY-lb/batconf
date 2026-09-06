@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from ..args import CliArgsConfig, Namespace
+from ..args import _CliArgsConfig, Namespace
 
 
 class TestCliArgsConfig(TestCase):
@@ -14,7 +14,7 @@ class TestCliArgsConfig(TestCase):
     def test_get(t):
         cli_args = Namespace(config_file='example.config.yaml', key='value')
 
-        conf = CliArgsConfig(cli_args)
+        conf = _CliArgsConfig(cli_args)
 
         with t.subTest('single key'):
             t.assertEqual(conf.get('config_file'), 'example.config.yaml')

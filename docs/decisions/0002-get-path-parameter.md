@@ -103,6 +103,8 @@ removed entirely in **v0.5.0**, at which point every live signature is
 - Passing `module=` to `EnvSource`, `NamespaceSource`, or `DataclassConfig`
   `.get()` emits `DeprecationWarning`; passing `path=` or the positional 2nd
   argument does not warn.
+- `EnvSource.env_name()` carries the same `module` keyword and warns through
+  the same helper. v0.5.0 removes it together with the `.get()` keyword.
 - `CliArgsConfig` and `YamlConfig` `.get()` keep their `module` parameter
   silently — both classes already warn elsewhere and are removed in v0.5.0.
 - Tests that call `.get(..., module=...)` on the live sources (`env_test`,
