@@ -1,4 +1,4 @@
-# A caller-declared environment-variable prefix
+# ADR 0018 — A caller-declared environment-variable prefix
 
 Date: 2026-09-01
 Status: Proposed
@@ -9,7 +9,7 @@ Status: Proposed
 literal `BAT`, and it applies only when the path is empty. The guide
 describes it as a stand-in for a missing path, not as a namespace.
 
-Once [an absent path is the root](01-absent-path-mounts-at-root.md), the
+Once [an absent path is the root](0017-absent-path-mounts-at-root.md), the
 empty path is the ordinary case, not the exception. A root-level key then
 resolves to a bare uppercase name: `NAME`, `PATH`, `HOME`, `USER`. Those
 are ambient process variables. The failure is silent and it is decided by
@@ -100,4 +100,4 @@ default.
 - The bootstrap pattern reads the reserved namespace through
   `EnvSource(prefix='batconf')`. `raw=True` is not that reader: with no
   prefix it resolves a bare name, which sits outside the namespace.
-  See [environment selection](04-environment-selection-bootstrap.md).
+  See [environment selection](0020-environment-selection-bootstrap.md).

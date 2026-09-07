@@ -58,7 +58,7 @@ What is removed
    * - The hardcoded ``BAT`` prefix of ``EnvSource``
      - ``EnvSource(prefix=...)``
    * - The ``[root]`` section of the INI ``flat`` layout
-     - ``[/ROOT/]`` — see ADR 0007-03
+     - ``[/ROOT/]`` — see ADR 0019
 
 ===========================
 The shared source interface
@@ -297,7 +297,7 @@ A sub-configuration mounts under its field name alone, so
 ``cfg.server.host`` reads ``server.host``. A key declared on the root
 schema has no section name left in an INI file, and INI has no unnamed
 section. The ``[/ROOT/]`` section holds those keys from v0.4.x, in the
-``sections`` layout and in the ``flat`` layout; see ADR 0007-03.
+``sections`` layout and in the ``flat`` layout; see ADR 0019.
 
 The ``flat`` layout named that section ``[root]``. The old name reads in
 v0.4.x, and v0.5.0 removes it. A flat file that spells no section header
@@ -345,7 +345,7 @@ was: path ``yourproject.conf.server`` and key ``host`` read
 In v0.4.x, ``prefix=None`` reads a bare uppercase name at the root, so a
 schema field named ``path`` or ``user`` resolves against an ambient
 process variable. Refusing bare names at the root is proposed for
-v0.5.0; see ADR 0007-02. Declare a prefix to keep every lookup inside a
+v0.5.0; see ADR 0018. Declare a prefix to keep every lookup inside a
 namespace under either rule.
 
 ``BATCONF_`` is reserved for BatConf's own variables. Do not choose it
