@@ -8,10 +8,10 @@ A schema mounts at the root of a namespace the caller declares.
 word enters the path vocabulary. INI alone spells the root with a reserved
 section name, because the format has no unnamed section.
 
-Components 0017–0021 build that up: what an absent path means, how the
-environment namespace is named, how INI reaches a root it cannot spell, where
-environment selection happens, and what a shared file and a shared process
-environment can express. Each option below was measured against the
+Components 0017–0021 build that up: what an absent path means, how the caller
+names the environment namespace, how INI reaches a root it cannot spell,
+where environment selection happens, and what a shared file and a shared
+process environment can express. Each option below was measured against the
 behaviour of the sources as they ship in 0.4.1.
 
 | #    | Title                                                                                      | Status   |

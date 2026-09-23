@@ -38,7 +38,7 @@ The `environments` layout reserves no name. An empty path resolves to the
 section of the active environment.
 
 The mapping is INI-only. TOML and YAML keep their native root and receive
-no reserved name. In `sections` the reserved name is documented as not
+no reserved name. In `sections`, the guide documents the reserved name as not
 recommended; it exists for parity between the file formats.
 
 No `root_section=` argument ships on any file source.
@@ -53,8 +53,8 @@ No `root_section=` argument ships on any file source.
   cannot shadow a namespace a user wants [pro]
 - The reserved name stays inside the one format that needs it and never
   enters the path vocabulary [pro]
-- Section names carry their case and their spacing, so a near miss needs a
-  warning to be seen [con]
+- Section names carry their case and their spacing, so the user sees a near
+  miss only through a warning [con]
 
 ### A `root_section=` argument
 
@@ -91,8 +91,8 @@ seriously, and it fails on duplication. `path=` is the project-wide mount
 point already, and it reaches every source through the frozen
 `get(key, path)` parameter that
 [ADR 0014](../0014-get-path-parameter.md) settled. A second spelling of the
-same namespace, per source and per format, adds a name that must be kept in
-step with the first and adds no capability.
+same namespace, per source and per format, adds a name that the project must
+keep in step with the first, and adds no capability.
 
 `/ROOT/` is the only safe fixed literal. `bat` and `conf` are names a user
 may legitimately want for a namespace, and `configparser` offers no escape

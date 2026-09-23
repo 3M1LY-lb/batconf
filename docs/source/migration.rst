@@ -344,9 +344,9 @@ was: path ``yourproject.conf.server`` and key ``host`` read
 
 In v0.4.x, ``prefix=None`` reads a bare uppercase name at the root, so a
 schema field named ``path`` or ``user`` resolves against an ambient
-process variable. Refusing bare names at the root is proposed for
-v0.5.0; see ADR 0018. Declare a prefix to keep every lookup inside a
-namespace under either rule.
+process variable. ADR 0018 proposes to refuse bare names at the root in
+v0.5.0. Declare a prefix to keep every lookup inside a namespace under
+either rule.
 
 ``BATCONF_`` is reserved for BatConf's own variables. Do not choose it
 as your prefix.

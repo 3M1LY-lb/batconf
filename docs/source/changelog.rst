@@ -23,8 +23,8 @@ v0.5.0, and has a :doc:`migration` entry.
 
 Two default behaviours are deprecated alongside the names: the module-name
 config path and the ``BAT`` environment prefix. Each derives a namespace
-the caller never chose. Both are replaced by a namespace the caller
-declares, and both are removed in v0.5.0.
+the caller never chose. A namespace the caller declares replaces both.
+Both are removed in v0.5.0.
 
 BatConf deprecates and documents a name in a patch release (n.n.x) and
 removes it in the next minor release (n.x).

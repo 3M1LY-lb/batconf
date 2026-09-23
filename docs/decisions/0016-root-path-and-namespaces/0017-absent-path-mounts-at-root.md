@@ -21,10 +21,10 @@ workaround.
 already records the module default as a compatibility retention, not the
 preferred style.
 
-The root is unreachable. The path is tested for truth, not for `None`, so an
-empty string and an omitted argument produce the same module name. A
-`Configuration` therefore never passes an empty path to a source, and the
-no-path branch that every source carries is unreachable behind it.
+The root is unreachable. `Configuration` tests the path for truth, not for
+`None`, so an empty string and an omitted argument produce the same module
+name. A `Configuration` therefore never passes an empty path to a source,
+and the no-path branch that every source carries is unreachable behind it.
 
 The module name is also an accidental namespace. It separates two projects
 that share one file only because their schemas sit in different packages.
@@ -62,8 +62,8 @@ it. It resolves the same names either way.
 - A module name cannot contain `/`, so no value shadows the token [pro]
 - `Configuration` must strip the token before any source sees it, and a
   source that receives it composes a nonsense key [con]
-- The token is hand-spelled at every call site, and a misspelling reads as
-  an ordinary namespace rather than as an error [con]
+- The caller spells the token by hand at every call site, and a misspelling
+  reads as an ordinary namespace rather than as an error [con]
 
 ### A sentinel object, `batconf.ROOT`
 

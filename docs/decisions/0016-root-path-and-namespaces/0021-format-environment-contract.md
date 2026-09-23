@@ -18,8 +18,8 @@ stage and in test until the user unsets it.
 
 Once [an absent path is the root](0017-absent-path-mounts-at-root.md), the
 root of a file and the root of the process environment belong to no
-project. Today the module name separates two projects implicitly. After
-the change, sharing is explicit and the rules for it must be stated.
+project. Today the module name separates two projects implicitly. After the
+change, sharing is explicit, and batconf must state the rules for it.
 
 ## Decision
 
@@ -84,11 +84,11 @@ check.
 
 Declaring the name is cheap because one declaration covers the files.
 `path=` reaches every source through the frozen `get(key, path)` parameter,
-so a project names itself once on `Configuration`. Only the environment
-prefix is stated separately. Matching the environment namespace to the file
-namespace is the recommendation and the canonical setup. `prefix=` exists for
-a package rename whose deployments still export the old prefix, and for
-several packages that share one prefix in one deployment. See
+so a project names itself once on `Configuration`. The project states only
+the environment prefix separately. Matching the environment namespace to the
+file namespace is the recommendation and the canonical setup. `prefix=`
+exists for a package rename whose deployments still export the old prefix,
+and for several packages that share one prefix in one deployment. See
 [the environment prefix](0018-env-source-prefix.md).
 
 ## Consequences
@@ -102,7 +102,7 @@ several packages that share one prefix in one deployment. See
   wants a different environment passes `config_env=`. See
   [environment selection](0020-environment-selection-bootstrap.md).
 - An exported variable outlives every edit to the file and keeps overriding
-  until it is unset. This is the sharpest hazard in the shared case, and
-  the guide must state it.
+  until the user unsets it. This is the sharpest hazard in the shared case,
+  and the guide must state it.
 - In INI, `[DEFAULT]` keys inherit into every declared section, so one
   project can leak a key into every other project's sections.

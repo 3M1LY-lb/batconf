@@ -16,9 +16,9 @@ for every tool started in that shell. Nothing in the library reads such a
 variable, and no batconf-owned variable exists. The question is whether the
 sources should read one.
 
-The same question governs other pre-configuration facts. Which config file
-to read, and where to look for it, must be known before the configuration
-that would describe them can be built.
+The same question governs other pre-configuration facts. The program must
+know which config file to read, and where to look for it, before it can build
+the configuration that would describe them.
 
 ## Decision
 
@@ -31,8 +31,8 @@ The blessed layering pattern is the two-stage bootstrap. A bootstrap
 optionally over a bootstrap file. Every field it declares therefore lands in
 the reserved namespace: `environment` reads `BATCONF_ENVIRONMENT`, and
 `config_file` reads `BATCONF_CONFIG_FILE`. It carries the environment name,
-the config file paths, and other pre-configuration metadata. The real
-configuration is then built with `config_env=` taken from the bootstrap
+the config file paths, and other pre-configuration metadata. The caller then
+builds the real configuration with `config_env=` taken from the bootstrap
 value.
 
 Precedence is: an explicit `config_env=` first, `BATCONF_ENVIRONMENT` next
@@ -50,8 +50,8 @@ serves. See [the environment prefix](0018-env-source-prefix.md).
 
 ### A two-stage bootstrap, with sources left as readers (chosen)
 
-- The environment is decided once, at construction, where the caller can
-  see it [pro]
+- The caller selects the environment once, at construction, and can see that
+  choice there [pro]
 - The bootstrap is an ordinary `Configuration`, so the pattern does not need
   new machinery [pro]
 - No source gains a semantic contract that third-party sources would have
