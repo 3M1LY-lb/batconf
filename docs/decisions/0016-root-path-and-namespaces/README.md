@@ -29,7 +29,7 @@ Two deprecations land in 0.4.1 and are removed in 0.5.0: the
 environment prefix (0018). Both change documented behaviour, so both precede
 the 1.0 freeze.
 
-ADR 0019 adds a capability and deprecates one name with it: the INI
-`flat` layout keeps `[root]` through v0.4.x and loses it in 0.5.0.
-ADR 0020 and ADR 0021 add capability or state a contract. Neither removes a
-working behaviour.
+ADR 0019 adds a capability. `[/ROOT/]` is the one INI spelling of the root.
+The `flat` layout's `root` section name is internal, and no flat file
+changes. ADR 0020 and ADR 0021 add capability or state a contract. Neither
+removes a working behaviour.

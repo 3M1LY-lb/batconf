@@ -30,9 +30,9 @@ name = demo
 host = localhost
 ```
 
-The `flat` layout named that section `root`. `[root]` is deprecated in
-v0.4.x, where it still reads and raises a `DeprecationWarning`. v0.5.0
-removes it.
+The `flat` layout named that section `root`. The name is internal. The loader
+adds the `[root]` header itself, and a flat file that also spells it fails
+with `DuplicateSectionError`.
 
 The `environments` layout reserves no name. An empty path resolves to the
 section of the active environment.
@@ -99,8 +99,8 @@ may legitimately want for a namespace, and `configparser` offers no escape
 from the collision. `[DEFAULT]` is worse than a collision: it is a channel
 between sections.
 
-The `flat` layout already reserves a section name, and one spelling of the
-root across the layouts is worth the deprecation.
+The `flat` layout already reserves a section name. That name is internal, so
+one spelling of the root across the layouts changes no flat file.
 
 ## Consequences
 

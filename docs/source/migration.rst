@@ -57,8 +57,6 @@ What is removed
      - an explicit ``path=``, or the root
    * - The hardcoded ``BAT`` prefix of ``EnvSource``
      - ``EnvSource(prefix=...)``
-   * - The ``[root]`` section of the INI ``flat`` layout
-     - ``[/ROOT/]`` — see ADR 0019
 
 ===========================
 The shared source interface
@@ -299,20 +297,11 @@ schema has no section name left in an INI file, and INI has no unnamed
 section. The ``[/ROOT/]`` section holds those keys from v0.4.x, in the
 ``sections`` layout and in the ``flat`` layout; see ADR 0019.
 
-The ``flat`` layout named that section ``[root]``. The old name reads in
-v0.4.x, and v0.5.0 removes it. A flat file that spells no section header
-is unaffected; one that names the section renames it:
-
-.. code-block:: ini
-    :caption: config.ini (file_format='flat')
-
-    # old
-    [root]
-    host = localhost
-
-    # new
-    [/ROOT/]
-    host = localhost
+The ``flat`` layout keeps its keys at the top of the file, with no
+section header. The loader adds its own ``root`` section before it
+parses the file, so a file that spells a ``[root]`` header fails with
+``configparser.DuplicateSectionError``. That header is an error, not a
+deprecated spelling. A flat file does not need a change.
 
 ==================
 The BAT prefix
