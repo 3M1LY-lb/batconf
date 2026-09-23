@@ -74,7 +74,7 @@ No `root_section=` argument ships on any file source.
 
 ### The `[DEFAULT]` section
 
-- `configparser` supplies it, so no name is invented [pro]
+- `configparser` supplies it, so batconf does not invent a name [pro]
 - Its keys inherit into every section, so one root key shadows the same key
   in every namespace [con]
 - It never appears in `sections()`, so it is invisible to a reader of the

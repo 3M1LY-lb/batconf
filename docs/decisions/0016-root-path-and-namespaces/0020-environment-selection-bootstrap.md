@@ -61,8 +61,8 @@ serves. See [the environment prefix](0018-env-source-prefix.md).
 ### Every source reads the variable
 
 - The shell selects the environment with no code in the caller [pro]
-- Each source must implement the same read, third-party sources included,
-  and none of them can be forced to [con]
+- Each source must implement the same read, third-party sources included, and
+  batconf cannot force any of them to [con]
 - A source's answer then depends on ambient state that its arguments do not
   show [con]
 

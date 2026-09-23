@@ -17,9 +17,9 @@ BatConf 0.x
 0.4.1 - TBD
 ------------------
 
-A deprecation-completeness release. Nothing is removed and nothing
-supported breaks. Every name v0.5.0 removes now warns, names v0.5.0, and
-has a :doc:`migration` entry.
+A deprecation-completeness release. This release removes nothing, and
+nothing supported breaks. Every name v0.5.0 removes now warns, names
+v0.5.0, and has a :doc:`migration` entry.
 
 Two default behaviours are deprecated alongside the names: the module-name
 config path and the ``BAT`` environment prefix. Each derives a namespace

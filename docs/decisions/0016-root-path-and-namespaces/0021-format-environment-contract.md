@@ -9,12 +9,12 @@ Several projects share one config file and one process environment, and the
 user moves between environments. The behaviour described below is the
 behaviour of the sources as they ship in 0.4.1.
 
-The `flat` and `sections` formats accept `config_env` and discard it. No
-error is raised. Only `environments` holds several environments in one
-file. A `flat` file has one key space, so two projects cannot both declare
-`host`. Environment variables have no environment layer at all: a variable
-exported while working in dev keeps overriding the file in stage and in
-test until the user unsets it.
+The `flat` and `sections` formats accept `config_env` and discard it. The
+file source does not raise an error. Only `environments` holds several
+environments in one file. A `flat` file has one key space, so two projects
+cannot both declare `host`. Environment variables have no environment layer
+at all: a variable exported while working in dev keeps overriding the file in
+stage and in test until the user unsets it.
 
 Once [an absent path is the root](0017-absent-path-mounts-at-root.md), the
 root of a file and the root of the process environment belong to no

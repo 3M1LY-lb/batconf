@@ -3,10 +3,10 @@
 Issues: #152 (root / default config path naming), #150 (multiple top-level
 schemas)
 
-A schema mounts at the root of a namespace the caller declares. No namespace
-is derived from the source tree, and no reserved word enters the path
-vocabulary. INI alone spells the root with a reserved section name, because
-the format has no unnamed section.
+A schema mounts at the root of a namespace the caller declares.
+`Configuration` does not derive a namespace from the source tree. No reserved
+word enters the path vocabulary. INI alone spells the root with a reserved
+section name, because the format has no unnamed section.
 
 Components 0017–0021 build that up: what an absent path means, how the
 environment namespace is named, how INI reaches a root it cannot spell, where
