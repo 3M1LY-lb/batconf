@@ -65,7 +65,7 @@ Deprecated:
   your source list.
 * ``batconf.source.SourceInterface`` — the abstract base class was a
   workaround for type-checker limitations that no longer reproduce. Custom
-  sources need no base class; subclass
+  sources do not need a base class; subclass
   :class:`~batconf.sources.types.SourceInterfaceP` for type-checker
   enforcement. See ADR 0015.
 * ``CliArgsConfig`` now warns when the name is imported rather than when

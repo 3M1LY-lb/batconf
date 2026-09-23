@@ -200,8 +200,8 @@ schema already provided. Delete the entry from your source list:
 ==================
 SourceInterface
 ==================
-Custom sources need no base class: any object with a conforming ``get``
-method is a valid source. Subclass
+Custom sources do not need a base class: any object with a conforming
+``get`` method is a valid source. Subclass
 :py:class:`SourceInterfaceP <batconf.sources.types.SourceInterfaceP>` if
 you want a type checker to flag an incomplete implementation.
 

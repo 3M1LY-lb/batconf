@@ -51,8 +51,8 @@ it. It resolves the same names either way.
   config file key, or a future package name [pro]
 - The root is the absence of a prefix, which is what the file formats
   already mean by it [pro]
-- A schema needs no marker to stand alone or to nest, so composition needs
-  no special case [pro]
+- A schema does not need a marker to stand alone or to nest, so composition
+  does not need a special case [pro]
 - It changes the namespace of every configuration built without a path [con]
 
 ### A reserved path token, `/ROOT/`

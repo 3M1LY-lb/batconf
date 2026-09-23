@@ -52,8 +52,8 @@ serves. See [the environment prefix](0018-env-source-prefix.md).
 
 - The environment is decided once, at construction, where the caller can
   see it [pro]
-- The bootstrap is an ordinary `Configuration`, so the pattern needs no new
-  machinery [pro]
+- The bootstrap is an ordinary `Configuration`, so the pattern does not need
+  new machinery [pro]
 - No source gains a semantic contract that third-party sources would have
   to honour [pro]
 - The caller writes two constructions instead of one [con]
@@ -94,10 +94,10 @@ contract to enforce. That matters because the source interface is open:
 anyone may implement `SourceInterfaceP`, and a rule that only the shipped
 sources follow is not a rule.
 
-The bootstrap needs no new machinery because it is the library reading its
-own settings with its own tool. The root mount is what makes it cheap: a
-bootstrap configuration mounts at the root and needs no namespace of its
-own.
+The bootstrap does not need new machinery because it is the library reading
+its own settings with its own tool. The root mount is what makes it cheap: a
+bootstrap configuration mounts at the root and does not need a namespace of
+its own.
 
 The names do not change. `default_env` and `config_env=` are documented
 surface, and renaming them buys nothing.
