@@ -67,8 +67,8 @@ it. It resolves the same names either way.
 
 ### A sentinel object, `batconf.ROOT`
 
-- Explicit at the call site, visible to an IDE, and impossible to misspell
-  in silence [pro]
+- Explicit at the call site, visible to an IDE, and a misspelling raises
+  `AttributeError` at once [pro]
 - Additive, and the frozen `get(key, path)` signature is untouched [pro]
 - Widens the type of a public constructor parameter that third-party code
   forwards [con]
