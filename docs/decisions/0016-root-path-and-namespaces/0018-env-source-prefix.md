@@ -5,9 +5,11 @@ Status: Proposed
 
 ## Context
 
-`EnvSource` takes no constructor arguments. Its prefix is the hardcoded
-literal `BAT`, and it applies only when the path is empty. The guide
-describes it as a stand-in for a missing path, not as a namespace.
+`EnvSource` takes a `prefix` argument. An undeclared prefix keeps the 0.4.0
+rule: `BAT` leads the variable name when the path is empty, and no prefix
+applies otherwise. That `BAT` is a stand-in for a missing path, not a
+namespace. With `prefix=None`, no prefix applies, and an empty path reads
+the bare name.
 
 Once [an absent path is the root](0017-absent-path-mounts-at-root.md), the
 empty path is the ordinary case, not the exception. A root-level key then
@@ -31,14 +33,16 @@ behaviour change.
 not to the root alone. An undeclared prefix keeps the `BAT` behaviour and
 warns; `None` declares no namespace. The hardcoded `BAT` prefix is
 deprecated in 0.4.1 and removed in 0.5.0. `prefix` itself lands in 0.4.1
-alongside the deprecation; only the removal waits for 0.5.0.
+alongside the deprecation.
 
-With `prefix=None` and an empty path, a lookup returns `None`. `EnvSource`
-never reads a bare single-word name by accident.
+From 0.5.0, with `prefix=None` and an empty path, a lookup returns `None`.
+`EnvSource` never reads a bare single-word name by accident. In 0.4.1, that
+lookup reads the bare name.
 
-`EnvSource(raw=True)` enables bare-name resolution. The guide documents it
-as raw environment access: schema-declared fields read ambient variables,
-and the collision risk is the caller's chosen trade.
+From 0.5.0, `EnvSource(raw=True)` enables bare-name resolution. The guide
+documents it as raw environment access: schema-declared fields read ambient
+variables, and the collision risk is the caller's chosen trade. In 0.4.1,
+`EnvSource` has no `raw` parameter.
 
 The `BATCONF_*` namespace is reserved. User values must not live there, and
 no source serves a user lookup from it.

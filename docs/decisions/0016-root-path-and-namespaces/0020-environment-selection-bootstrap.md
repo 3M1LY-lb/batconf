@@ -41,9 +41,10 @@ through the bootstrap, and the file's `default_env` last.
 The file key stays `default_env`. The argument stays `config_env=`.
 
 Reading `BATCONF_ENVIRONMENT` through the bootstrap prefix is the sanctioned
-use of the reserved namespace. A bootstrap that also needs a genuinely
-ambient value, such as `$HOME`, adds a second `EnvSource(raw=True)`. The two
-are separate sources because a prefix applies to every lookup its source
+use of the reserved namespace. From 0.5.0, a bootstrap that also needs a
+genuinely ambient value, such as `$HOME`, adds a second
+`EnvSource(raw=True)`. In 0.4.1, `EnvSource(prefix=None)` does that job. The
+two are separate sources because a prefix applies to every lookup its source
 serves. See [the environment prefix](0018-env-source-prefix.md).
 
 ## Options considered
