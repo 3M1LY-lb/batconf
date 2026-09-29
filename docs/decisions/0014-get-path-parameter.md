@@ -1,7 +1,7 @@
-# ADR 0002 — Standardize `.get()` on `path`; deprecate the `module` keyword
+# ADR 0014 — Standardize `.get()` on `path`; deprecate the `module` keyword
 
 Date: 2026-06-03
-Status: Proposed
+Status: Accepted
 Branch: feature/get-name-resolution
 Issue: #3
 
@@ -57,10 +57,11 @@ removal point — and falls back to `module` only when `path` was not given.
 The two **already-deprecated** classes that also expose `module` —
 `CliArgsConfig` and the legacy `YamlConfig` — are left untouched. Each already
 emits a `DeprecationWarning` before `.get()` is ever reached (`YamlConfig` at
-import via the ADR 0003 module-`__getattr__` mechanism; `CliArgsConfig` at
-construction), and both are removed in v0.5.0. Adding a second
-`module`-keyword warning to their `.get()` would be redundant noise on names
-that are disappearing anyway.
+import via the
+[ADR 0012](0009-file-source-classes/0012-import-time-deprecation.md)
+module-`__getattr__` mechanism; `CliArgsConfig` at construction), and both are
+removed in v0.5.0. Adding a second `module`-keyword warning to their `.get()`
+would be redundant noise on names that are disappearing anyway.
 
 The six sources already on `path` are untouched. The `module` keyword is
 removed entirely in **v0.5.0**, at which point every live signature is
@@ -103,6 +104,8 @@ removed entirely in **v0.5.0**, at which point every live signature is
 - Passing `module=` to `EnvSource`, `NamespaceSource`, or `DataclassConfig`
   `.get()` emits `DeprecationWarning`; passing `path=` or the positional 2nd
   argument does not warn.
+- `EnvSource.env_name()` carries the same `module` keyword and warns through
+  the same helper. v0.5.0 removes it together with the `.get()` keyword.
 - `CliArgsConfig` and `YamlConfig` `.get()` keep their `module` parameter
   silently — both classes already warn elsewhere and are removed in v0.5.0.
 - Tests that call `.get(..., module=...)` on the live sources (`env_test`,

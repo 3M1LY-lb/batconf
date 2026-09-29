@@ -49,6 +49,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# mutmut working copy of the source tree
+mutants/
+
 # Translations
 *.mo
 *.pot

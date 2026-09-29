@@ -21,12 +21,13 @@ up front:
 ## Source interface
 
 `SourceInterfaceP` (Protocol, `batconf/sources/types.py`) is the canonical
-source interface — prefer it for all new code. `SourceInterface` (ABC) exists
-only as a temporary workaround for mypy limitations and may be removed in a
-future release.
+source interface, and the only one — use it for all new code.
 
 ## Running tests
 
 - Full matrix (parallel, minimal output): `nox -s parallel -- -q`
   Avoid raw `nox -p` — it interleaves all sessions and is very noisy.
 - Targeted runs during development: `python -m pytest <paths>`.
+- Mutation coverage, before a PR goes to review: `pixi run mutation`.
+  Report the caught and survived counts in the PR. Survivors measure test
+  strength; fixing every one is not required.

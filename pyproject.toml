@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "batconf"
-version = "0.4.1+dev"
+version = "1.0.0"
 description = "Application configuration tool from the BAT project"
 authors = [
     { name = 'Lundy Bernard', email = 'lundy.bernard@gmail.com' },
@@ -14,7 +14,7 @@ license = { file = 'LICENSE' }
 readme = "README.md"
 requires-python = '>=3.10'
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'Programming Language :: Python :: 3',
     "Programming Language :: Python :: 3 :: Only",
@@ -66,12 +66,20 @@ test-matrix = [
     "uv",
 ]
 
+# mutation testing. The test group rides along: the pytest addopts name --cov,
+# and pytest rejects that flag without pytest-cov.
+mutation = [
+    {include-group = "test"},
+    "mutmut>=3.6",
+]
+
 # convenience group for local development:
 dev = [
     {include-group = "test"},
     {include-group = "lint"},
     {include-group = "typecheck"},
     {include-group = "test-matrix"},
+    {include-group = "mutation"},
 ]
 
 build = [
@@ -88,6 +96,7 @@ docs = [
     'sphinxext-opengraph',
     'sphinx_design',
     'sphinx-rtd-theme',
+    'ipython-pygments-lexers', # the ipythonconsole lexer
     'matplotlib', # for social preview cards
     'diagrams',
 ]
@@ -105,6 +114,8 @@ notebooks = [
 [tool.pytest.ini_options]
 log_level = "INFO"
 addopts = "--cov=batconf --cov-report=term"
+# Deprecated names must be reached through a test that asserts the warning.
+filterwarnings = ["error::DeprecationWarning"]
 cache_dir = ".cache/pytest"
 python_classes = '*Tests'
 python_files = ["*_test.py", "*_pytest.py", "test_*.py"]
@@ -117,6 +128,14 @@ fail_under = 100
 skip_covered = true
 show_missing = true
 skip_empty = true
+
+# Mutation testing. --no-cov is mandatory: the mutated tree reports about half
+# the coverage of the source tree, and fail_under = 100 then aborts the run.
+[tool.mutmut]
+source_paths = ["batconf"]
+do_not_mutate = ["*/tests/*.py", "*_test.py"]
+pytest_add_cli_args_test_selection = ["batconf", "tests"]
+pytest_add_cli_args = ["--no-cov"]
 
 
 # === Formatting === #
@@ -157,13 +176,13 @@ exclude-newer = "7 days"
 # CI caching, while the deps under test float. `exclude-newer` mirrors
 # [tool.uv] so the dev env carries the same supply-chain cooldown.
 #
-# Tool sets come from [dependency-groups] (test/lint/typecheck/dev) — pixi maps
-# each PEP 735 group to a feature of the same name, so there is a single source
-# of truth shared with uv/nox. Each task is attached to its feature, so it runs
-# in exactly one environment (no ambiguity); the single-feature envs isolate the
-# tools for targeted runs and CI (`pixi run test`, `pixi run lint`, ...). The
-# `dev` group includes all three, so the default environment is the union nvim
-# activates (`pixi shell`).
+# Tool sets come from [dependency-groups] (test/lint/typecheck/mutation/dev) —
+# pixi maps each PEP 735 group to a feature of the same name, so there is a
+# single source of truth shared with uv/nox. Each task is attached to its
+# feature, so it runs in exactly one environment (no ambiguity); the
+# single-feature envs isolate the tools for targeted runs and CI (`pixi run
+# test`, `pixi run lint`, ...). The `dev` group includes all four, so the
+# default environment is the union nvim activates (`pixi shell`).
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 # Exactly the platforms CI launches nox on (ubuntu/macos/windows runners). nox
@@ -198,6 +217,7 @@ default = { features = ["dev"], solve-group = "default" }
 test = { features = ["test"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
 typecheck = { features = ["typecheck"], solve-group = "default" }
+mutation = { features = ["mutation"], solve-group = "default" }
 notebooks = { features = ["notebooks"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
 
@@ -209,7 +229,7 @@ graphviz = "*"
 # conf.py imports diagram_config_comp from the source dir, so build with the
 # module runner from docs/source (cwd lands on sys.path, matching ReadTheDocs).
 [tool.pixi.feature.docs.tasks]
-docs = { cmd = "python -m sphinx -b html . ../build/html", cwd = "docs/source" }
+docs = { cmd = "python -m sphinx --fail-on-warning --builder html . ../build/html", cwd = "docs/source" }
 
 [tool.pixi.feature.test.tasks]
 test = "pytest batconf && pytest --no-cov tests"
@@ -219,6 +239,13 @@ lint = "flake8 batconf tests --count --select=E9,F63,F7,F82 --show-source --stat
 
 [tool.pixi.feature.typecheck.tasks]
 typecheck = "mypy batconf && mypy tests"
+
+# mutmut re-copies every non-mutated file into mutants/ on each run and chmods
+# the destination, which fails when the existing copy is not writable. The task
+# deletes those copies first. The mutated sources under mutants/batconf stay:
+# mutmut skips them and uses them as the incremental cache.
+[tool.pixi.feature.mutation.tasks]
+mutation = "rm -rf mutants/pyproject.toml mutants/tests mutants/batconf/tests mutants/batconf/sources/tests && mutmut run"
 
 # nox + uv reach the default environment via the dev group's test-matrix
 # include; the task lives on the dev feature so it runs there.

@@ -27,16 +27,30 @@ TomlSource
 YamlSource
     Reads from YAML files.
 
+Errors
+------
+BatconfError
+    Base class for every error batconf raises. Each error also keeps
+    the standard exception it replaces as a base.
+
 Type annotations
 ----------------
 See :mod:`batconf.types` for Protocol types used in type hints.
 """
 
+from .errors import (
+    BatconfError,
+    ConfigEnvironmentNotFound,
+    ConfigFileNotFound,
+    ConfigValueNotFound,
+    InvalidFileFormat,
+    SourceDependencyNotFound,
+)
 from .lib import insert_source, ConfigSingleton
 from .manager import Configuration
 from .source import SourceList
-from .sources.argparse import NamespaceConfig as NamespaceSource, Namespace
-from .sources.env import EnvConfig as EnvSource
+from .sources.argparse import NamespaceSource, Namespace
+from .sources.env import EnvSource
 from .sources.ini import IniSource
 from .sources.toml import TomlSource
 from .sources.yaml import YamlSource
@@ -54,4 +68,11 @@ __all__ = [
     'IniSource',
     'TomlSource',
     'YamlSource',
+    # Errors
+    'BatconfError',
+    'ConfigEnvironmentNotFound',
+    'ConfigFileNotFound',
+    'ConfigValueNotFound',
+    'InvalidFileFormat',
+    'SourceDependencyNotFound',
 ]
